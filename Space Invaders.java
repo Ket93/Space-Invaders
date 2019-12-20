@@ -1,34 +1,57 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
 
-public class SpaceInvaders extends JFrame {
-
+public class SpaceInvaders extends JFrame implements ActionListener {
+    Timer myTimer;
     GamePanel game = new GamePanel();
-
+    
     public SpaceInvaders (){
-        super ("Space Invaders");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1100,700);
-        setLayout(new BorderLayout());
-        setVisible (true);
-
+      super ("Space Invaders");
+      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      setSize(1100,700);
+      
+      myTimer = new Timer(10, this);
+      myTimer.start();
+      
+      setVisible (true);
+      
     }
-
+    
+      public void actionPerformed(ActionEvent evt){
+        game.move();
+        game.repaint();
+      }   
+    
+    
     public static void main (String [] args){
-        SpaceInvaders frame = new SpaceInvaders();
+      SpaceInvaders frame = new SpaceInvaders();
     }
-
+    
 }
 
 class GamePanel extends JPanel{
-    public void background (Graphics pic){
-    pic.setColor(new Color (0,0,0) );
-    pic.fillRect (0,0,getWidth(),getHeight());
-    }
-        }
+  private int x;
+  
+  public GamePanel(){
+    x=100;
+    setSize(1100,700);
+  }
+  
+  public void paintComponent(Graphics g){
+    g.setColor(new Color(0,0,0));  
+    g.fillRect(0,0,1100,700);  
+    g.setColor(new Color(255,0,0));  
+    g.fillRect(x,600,50,50);
+  }
+  
+  public void move(){
+    x+=1;
+  }
+      
+}
 
+/*/
 class Ship{
     private int lives;
     private int score;
@@ -76,6 +99,4 @@ class Bullets{
 
 
 }
-
-
-
+/*/
