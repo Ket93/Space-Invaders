@@ -15,6 +15,7 @@ public class SpaceInvaders extends JFrame implements ActionListener {
       myTimer.start();
       
       setVisible (true);
+      setResizable (true);
         
        add(game);
       
@@ -32,12 +33,16 @@ public class SpaceInvaders extends JFrame implements ActionListener {
     
 }
 
-class GamePanel extends JPanel{
+class GamePanel extends JPanel implements KeyListener{
   private int x;
-  
+  private int position;
+  private boolean [] keys;
+    
   public GamePanel(){
     x=100;
     setSize(1100,700);
+    keys = new boolean[KeyEvent.KEY_LAST+1];
+    addKeyListener(this);
   }
   
   public void paintComponent(Graphics g){
@@ -49,6 +54,25 @@ class GamePanel extends JPanel{
   
   public void move(){
     x+=1;
+    if (keys[KeyEvent.VK_RIGHT]) {
+        position += 5;
+        }
+    if (keys[KeyEvent.VK_LEFT]) {
+        position -= 5;
+        }
+    }
+
+    public void keyTyped(KeyEvent keyEvent) {
+
+    }
+
+    public void keyPressed(KeyEvent keyEvent) {
+        keys[keyEvent.getKeyCode()] = true;
+    }
+
+    public void keyReleased(KeyEvent keyEvent) {
+        keys[keyEvent.getKeyCode()] = false;
+    }
   }
       
 }
