@@ -15,6 +15,8 @@ public class SpaceInvaders extends JFrame implements ActionListener {
       myTimer.start();
       
       setVisible (true);
+        
+       add(game);
       
     }
     
