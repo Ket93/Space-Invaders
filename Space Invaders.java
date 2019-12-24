@@ -1,7 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.MouseInfo;
+import java.util.*;
 
 public class SpaceInvaders extends JFrame implements ActionListener {
     Timer myTimer;
@@ -122,7 +124,7 @@ class Enemy{
 }
 
 class Bullet{
-  private int bx;
+  private int bx=0;
   private int by=650;
   private String type;
   private Image bulletPic;
@@ -131,17 +133,21 @@ class Bullet{
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/"+type+".png").getImage();
   }
   public void shoot(int x){
-    bx=x+20;
-    by-=10;
+    if(bx==0){
+      bx=x+20;
+    }
+    if(by==650){
+      by-=10;
+    }
   }
   public void shipBulletDraw(Graphics g){
     if(by<650){
       by-=10;
       g.drawImage(bulletPic,bx,by,null);
     }
-    if(by==0){
+    if(by<=0){
       by=650;
+      bx=0;
     }
   }   
 }
-
