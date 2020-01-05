@@ -39,6 +39,7 @@ public class SpaceInvaders extends JFrame implements ActionListener {
 class GamePanel extends JPanel implements KeyListener{
   private Ship ship=new Ship();
   private Bullet shipBullet=new Bullet("shipBullet");
+  private Shield shield=new Shield();
   private int position;
   private boolean [] keys;
     
@@ -57,10 +58,8 @@ class GamePanel extends JPanel implements KeyListener{
     g.setColor(new Color(0,0,0));  
     g.fillRect(0,0,1000,850);
     ship.draw(g);
-    if(120<shipBullet.getbx() && shipBullet.getbx()<300 && 500<shipBullet.getby() && shipBullet.getby()<550){
-      shipBullet.setRect();
-      shipBullet.resetby();
-    }
+    shieldEdit();
+    shield.shieldDraw(g);
     shipBullet.shipBulletDraw(g);
   }
   
@@ -76,8 +75,7 @@ class GamePanel extends JPanel implements KeyListener{
     }
   }
   
-  public void keyTyped(KeyEvent keyEvent) {
-    
+  public void keyTyped(KeyEvent keyEvent) {    
   }
   
   public void keyPressed(KeyEvent keyEvent) {
@@ -86,6 +84,32 @@ class GamePanel extends JPanel implements KeyListener{
   
   public void keyReleased(KeyEvent keyEvent) {
     keys[keyEvent.getKeyCode()] = false;
+  }
+  public void shieldEdit(){
+    if(200<=shipBullet.getbx() && shipBullet.getbx()<320){
+      if(500<=shipBullet.getby() && shipBullet.getby()<560){
+        if(shield.getShield1()[(shipBullet.getby()-500)/20][(shipBullet.getbx()-200)/20]==0){
+          shield.setShield1((shipBullet.getbx()-200)/20,(shipBullet.getby()-500)/20);
+          shipBullet.reset();
+        }
+      }
+    }
+    else if(450<=shipBullet.getbx() && shipBullet.getbx()<570){
+      if(500<=shipBullet.getby() && shipBullet.getby()<560){
+        if(shield.getShield2()[(shipBullet.getby()-500)/20][(shipBullet.getbx()-450)/20]==0){
+          shield.setShield2((shipBullet.getbx()-450)/20,(shipBullet.getby()-500)/20);
+          shipBullet.reset();
+        }
+      }
+    }
+    else if(700<=shipBullet.getbx() && shipBullet.getbx()<820){
+      if(500<=shipBullet.getby() && shipBullet.getby()<560){
+        if(shield.getShield3()[(shipBullet.getby()-500)/20][(shipBullet.getbx()-700)/20]==0){
+          shield.setShield3((shipBullet.getbx()-700)/20,(shipBullet.getby()-500)/20);
+          shipBullet.reset();
+        }
+      }
+    }
   }
 }
 
@@ -111,11 +135,7 @@ class Ship{
       }
     }
     public void draw(Graphics g){
-      g.drawImage(shipPic,position,650,null);
-      g.setColor(new Color(0,255,0));  
-      g.fillRect(150,500,150,50);
-      g.fillRect(430,500,150,50);
-      g.fillRect(700,500,150,50);      
+      g.drawImage(shipPic,position,650,null);     
     }
     
     public int position(){
@@ -128,12 +148,9 @@ class Bullet{
   private int by=650;
   private String type;
   private Image bulletPic;
-  private ArrayList<Integer>points = new ArrayList<Integer>();
   
   public Bullet(String type){
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/"+type+".png").getImage();
-    points.add(0);
-    points.add(0);
   }
   public void shipBulletshoot(int x){
     if(bx==0){
@@ -144,17 +161,13 @@ class Bullet{
     }
   }
   public void shipBulletDraw(Graphics g){
-    if(by<650){
-      by-=10;
-      g.drawImage(bulletPic,bx,by,null);
-      for(int i=0; i<points.size(); i+=2){
-        g.setColor(new Color(255,0,0));  
-        g.fillRect(points.get(i),points.get(i+1),10,10);
-      }
-    }
     if(by<=0){
       by=650;
       bx=0;
+    }
+    if(by<650){
+      by-=10;
+      g.drawImage(bulletPic,bx,by,null);
     }
   }
   
@@ -164,11 +177,68 @@ class Bullet{
   public int getby(){
     return by;
   }
-  public void resetby(){
-    by=0;
+  public void reset(){
+    by=-1;
   }
-  public void setRect(){
-    points.add(bx);
-    points.add(by);
+}
+class Shield{
+  private int[][]shield1=
+  {{0,0,0,0,0,0},
+    {0,0,0,0,0,0},
+    {0,0,0,0,0,0}};   
+  private int[][]shield2=
+  {{0,0,0,0,0,0},
+    {0,0,0,0,0,0},
+    {0,0,0,0,0,0}}; 
+  private int[][]shield3=
+  {{0,0,0,0,0,0},
+    {0,0,0,0,0,0},
+    {0,0,0,0,0,0}}; 
+  public Shield(){
+  }
+  public void shieldDraw(Graphics g){
+    g.setColor(new Color(0,255,0));  
+    for(int y=0; y<3; y++){
+      for(int x=0; x<6; x++){
+        if(shield1[y][x]==0){
+          g.fillRect(200+(x*20),500+(y*20),20,20);
+        }
+        if(shield2[y][x]==0){
+          g.fillRect(450+(x*20),500+(y*20),20,20);
+        }
+        if(shield3[y][x]==0){
+          g.fillRect(700+(x*20),500+(y*20),20,20); 
+        }  
+        g.setColor(new Color(0,0,0));
+        if(shield1[y][x]==1){
+          g.fillRect(200+(x*20),500+(y*20),20,20);
+        }
+        if(shield2[y][x]==1){
+          g.fillRect(450+(x*20),500+(y*20),20,20);
+        }
+        if(shield3[y][x]==1){
+          g.fillRect(700+(x*20),500+(y*20),20,20);
+        }
+        g.setColor(new Color(0,255,0));
+      }
+    }
+  }
+  public int[][] getShield1(){
+    return shield1;
+  }
+  public int[][] getShield2(){
+    return shield2;
+  }
+  public int[][] getShield3(){
+    return shield3;
+  }
+  public void setShield1(int x, int y){
+    shield1[y][x]=1;
+  }
+  public void setShield2(int x, int y){
+    shield2[y][x]=1;
+  }
+  public void setShield3(int x, int y){
+    shield3[y][x]=1;
   }
 }
