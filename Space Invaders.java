@@ -61,7 +61,7 @@ class GamePanel extends JPanel implements KeyListener{
         g.fillRect(0,0,1000,850);
         ship.draw(g);
         shieldEdit();
-        enemy.draw(g,50);
+        enemy.draw(g);
         shield.shieldDraw(g);
         shipBullet.shipBulletDraw(g);
     }
@@ -150,33 +150,52 @@ class Ship{
 class Enemy{
     private int positionY;
     private boolean left = false;
+    private int reachEnd;
     private Image enemyShip;
-    private int [] posX = {50,100,150,200,250,300,350,400,450,500,550};
+    private Image enemyShip2;
+    private Image enemyShip3;
+    private ArrayList<Integer> posX = new ArrayList<Integer>();
 
     public Enemy () {
-        positionY = 100;
+        reachEnd = 0;
+        for (int i = 50;i<600;i+=50) {
+            posX.add(i);
+        }
+        positionY = 50;
         enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
+        enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
+        enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
     }
 
-    public void draw (Graphics g, int x) {
+    public void draw (Graphics g) {
         for (int i = 0; i<11; i++) {
-            g.drawImage(enemyShip, posX[i], positionY, null);
+            g.drawImage(enemyShip3, posX.get(i), positionY, null);
+            g.drawImage(enemyShip, posX.get(i), positionY+50, null);
+            g.drawImage(enemyShip, posX.get(i), positionY+100, null);
+            g.drawImage(enemyShip2, posX.get(i), positionY+150, null);
+            g.drawImage(enemyShip2, posX.get(i), positionY+200, null);
         }
     }
 
     public void move (){
-        if (posX[0] == 0){
+        if (posX.get(0) == 0){
             left = false;
+            reachEnd += 1;
         }
-        if (posX[posX.length-1]==940){
+        if (posX.get(posX.size()-1)==930){
             left = true;
+            reachEnd += 1;
+        }
+        if (reachEnd == 2){
+            positionY += 20;
+            reachEnd = 0;
         }
         for (int i = 0; i<11; i++){
             if (left){
-                posX[i] += -1;
+                posX.set(i,posX.get(i)-1);
             }
             if (!left){
-                posX[i] += 1;
+                posX.set(i,posX.get(i)+1);
             }
         }
     }
