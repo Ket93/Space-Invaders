@@ -62,6 +62,7 @@ class GamePanel extends JPanel implements KeyListener{
     g.fillRect(0,0,1000,850);
     ship.draw(g);
     shieldEdit();
+    enemyCheck();
     enemy.draw(g);
     shield.shieldDraw(g);
     stats.draw(g);
@@ -92,27 +93,51 @@ class GamePanel extends JPanel implements KeyListener{
     keys[keyEvent.getKeyCode()] = false;
   }
   public void shieldEdit(){
-    if(200<=shipBullet.getbx()+10 && shipBullet.getbx()+10<320){
-      if(500<=shipBullet.getby() && shipBullet.getby()<560){
-        if(shield.getShield1()[(shipBullet.getby()-500)/12][(shipBullet.getbx()-200+10)/12]==0){
-          shield.setShield1((shipBullet.getbx()-200+10)/12,(shipBullet.getby()-500)/12);
+    int bx=shipBullet.getbx();
+    int by=shipBullet.getby();
+    if(200<=bx+10 && bx+10<320){
+      if(500<=by && by<560){
+        if(shield.getShield1()[(by-500)/12][(bx-200+10)/12]==0){
+          shield.setShield1((bx-200+10)/12,(by-500)/12);
           shipBullet.reset();
         }
       }
     }
-    else if(450<=shipBullet.getbx()+10 && shipBullet.getbx()+10<570){
-      if(500<=shipBullet.getby() && shipBullet.getby()<560){
-        if(shield.getShield2()[(shipBullet.getby()-500)/12][(shipBullet.getbx()-450+10)/12]==0){
-          shield.setShield2((shipBullet.getbx()-450+10)/12,(shipBullet.getby()-500)/12);
+    else if(450<=bx+10 && bx+10<570){
+      if(500<=by && by<560){
+        if(shield.getShield2()[(by-500)/12][(bx-450+10)/12]==0){
+          shield.setShield2((bx-450+10)/12,(by-500)/12);
           shipBullet.reset();
         }
       }
     }
-    else if(700<=shipBullet.getbx()+10 && shipBullet.getbx()+10<820){
-      if(500<=shipBullet.getby() && shipBullet.getby()<560){
-        if(shield.getShield3()[(shipBullet.getby()-500)/12][(shipBullet.getbx()-700+10)/12]==0){
-          shield.setShield3((shipBullet.getbx()-700+10)/12,(shipBullet.getby()-500)/12);
+    else if(700<=bx+10 && bx+10<820){
+      if(500<=by && by<560){
+        if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){
+          shield.setShield3((bx-700+10)/12,(by-500)/12);
           shipBullet.reset();
+        }
+      }
+    }
+  }
+  public void enemyCheck(){
+    int bx=shipBullet.getbx();
+    int by=shipBullet.getby();
+    ArrayList<Integer>posX=enemy.getposX();
+    int posY=enemy.getpositionY();
+    int[][]enemies=enemy.getenemies();
+    if(posY-250<by && by<posY && posX.get(0)<bx && bx<posX.get(posX.size()-1)+50){
+      for(int y=0; y<5; y++){
+        for(int x=0; x<11; x++){
+          if(enemies[y][x]!=0){
+            if(posX.get(x)<bx && bx<posX.get(x)+50){
+              if(posY-250+(y*50)<by && by<posY-200+(y*50)){
+                shipBullet.reset();
+                enemies[y][x]=0;
+                enemy.setenemies(enemies);
+              }
+            }
+          }
         }
       }
     }
@@ -157,44 +182,92 @@ class Enemy{
   private Image enemyShip2;
   private Image enemyShip3;
   private ArrayList<Integer> posX = new ArrayList<Integer>();
+  private int[][]enemies=
+  {{3,3,3,3,3,3,3,3,3,3,3},
+    {2,2,2,2,2,2,2,2,2,2,2},
+    {2,2,2,2,2,2,2,2,2,2,2},
+    {1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1}};
   
   public Enemy () {
-    for (int i = 50;i<600;i+=50) {
+    for (int i = 50; i<600 ;i+=50) {
       posX.add(i);
     }
-    positionY = 100;
-    enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
-    enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
+    positionY = 350;
+    enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
+    enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
     enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
   }
   
   public void draw (Graphics g) {
-    for (int i = 0; i<11; i++) {
-      g.drawImage(enemyShip3, posX.get(i), positionY, null);
-      g.drawImage(enemyShip, posX.get(i), positionY+50, null);
-      g.drawImage(enemyShip, posX.get(i), positionY+100, null);
-      g.drawImage(enemyShip2, posX.get(i), positionY+150, null);
-      g.drawImage(enemyShip2, posX.get(i), positionY+200, null);
+    for(int y=0; y<5; y++){
+      for(int x=0; x<11; x++){
+        if(enemies[y][x]==3){
+          g.drawImage(enemyShip3, posX.get(0)+(x*50), positionY-250+(y*50), null);
+        }
+        else if(enemies[y][x]==2){
+          g.drawImage(enemyShip2, posX.get(0)+(x*50), positionY-250+(y*50), null);
+        }
+        else if(enemies[y][x]==1){
+          g.drawImage(enemyShip, posX.get(0)+(x*50), positionY-250+(y*50), null);
+        }
+      }
     }
   }
   
-  public void move (){
-    if (posX.get(0) == 0){
-      left = false;
-      positionY+=20;
+  public void move (){ 
+    int edgePos=0;
+    if(left){
+      for(int x=0; x<10; x++){
+        for(int y=0; y<5; y++){
+          if(enemies[y][x]!=0){
+            edgePos=x;
+            x=99;
+            y=99;
+          }
+        }
+      }
+      if (posX.get(edgePos)==0){
+        left = false;
+        positionY+=20;
+      }
     }
-    if (posX.get(posX.size()-1)==930){
-      left = true;
-      positionY+=20;
+    else if(!left){
+      for(int x=10; x>=0; x--){
+        for(int y=0; y<5; y++){
+          if(enemies[y][x]!=0){
+            edgePos=x;
+            x=-99;
+            y=99;
+          }
+        }
+      }
+      if (posX.get(edgePos)==930){
+        left = true;
+        positionY+=20;
+      }
     }
     for (int i = 0; i<11; i++){
       if (left){
         posX.set(i,posX.get(i)-1);
       }
-      if (!left){
+      else if (!left){
         posX.set(i,posX.get(i)+1);
       }
     }
+  }
+  
+  public int[][] getenemies(){
+    return enemies;
+  }
+  public ArrayList<Integer> getposX(){
+    return posX;
+  }
+  public int getpositionY(){
+    return positionY;
+  }
+  public void setenemies(int[][]newEnemies){
+    enemies=newEnemies;
   }
 }
 
