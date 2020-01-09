@@ -17,8 +17,13 @@ public class SpaceInvaders extends JFrame implements ActionListener {
     myTimer = new Timer(10, this);
     myTimer.start();
     
+    setFocusable(true);
+    requestFocus();
     setVisible (true);
     setResizable (true);
+    addKeyListener(this);
+    addMouseListener(game.getTitleScreen());
+    addMouseMotionListener(game.getTitleScreen());
     
     add(game);
     
@@ -42,8 +47,10 @@ class GamePanel extends JPanel implements KeyListener{
   private Shield shield=new Shield();
   private Enemy enemy = new Enemy();
   private Stats stats = new Stats();
+  private TitleScreen title = new TitleScreen();
   private int position;
   private boolean [] keys;
+  private onTitle = true;
   
   public GamePanel(){
     setSize(1000,850);
@@ -58,16 +65,26 @@ class GamePanel extends JPanel implements KeyListener{
   }
   
   public void paintComponent(Graphics g){
-    g.setColor(new Color(0,0,0));
-    g.fillRect(0,0,1000,850);
-    ship.draw(g);
-    shieldEdit();
-    enemyCheck();
-    enemy.draw(g);
-    shield.shieldDraw(g);
-    stats.draw(g);
-    shipBullet.shipBulletDraw(g);
+    if (onTitle){
+      onTitle = title.draw(g)
+    }
+    else if (!onTitle){
+      g.setColor(new Color(0,0,0));
+      g.fillRect(0,0,1000,850);
+      ship.draw(g);
+      shieldEdit();
+      enemyCheck();
+      enemy.draw(g);
+      shield.shieldDraw(g);
+      stats.draw(g);
+      shipBullet.shipBulletDraw(g);
+    }
   }
+  
+   public TitleScreen getTitleScreen(){
+      return title;
+    }
+
   
   public void move(){
     if (keys[KeyEvent.VK_RIGHT]) {
@@ -142,6 +159,97 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
+}
+
+class TitleScreen implements MouseListener, MouseMotionListener{
+    private Image spacePic;
+    private Image enemyShip1;
+    private Image enemyShip2;
+    private Image enemyShip3;
+    private boolean mousePressed;
+    private int mx;
+    private int my;
+
+    public TitleScreen(){
+        spacePic = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
+        enemyShip1 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
+        enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
+        enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) {
+
+    }
+
+    public void mousePressed (MouseEvent e){
+        if (e.getButton() == MouseEvent.BUTTON1){
+            mousePressed = true;
+        }
+    }
+
+    public void mouseReleased (MouseEvent e){
+        if (e.getButton() == MouseEvent.BUTTON1){
+            mousePressed = false;
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent mouseEvent) {
+
+    }
+
+    public boolean draw (Graphics g){
+        g.drawImage(spacePic, 0, 0, null);
+        Graphics2D g2d = (Graphics2D) g;
+        Font font = new Font("Consolas",Font.PLAIN,190);
+        Font smallFont = new Font("Consolas",Font.PLAIN,90);
+        Font superSmallFont = new Font ("Consolas",Font.PLAIN,50);
+        Font verySmallFont = new Font ("Consolas",Font.PLAIN,30);
+        g2d.setFont(font);
+        g2d.setColor(Color.white);
+        g2d.drawString("SPACE",245,170);
+        g2d.setFont(smallFont);
+        g2d.setColor(Color.green);
+        g2d.drawString("INVADERS",315,260);
+        g.drawImage(enemyShip1, 395, 290, null);
+        g2d.setColor(Color.white);
+        g2d.setFont(verySmallFont);
+        g2d.drawString("= 10 PTS",470,320);
+        g.drawImage(enemyShip2, 395, 350, null);
+        g2d.drawString("= 20 PTS",470,380);
+        g.drawImage(enemyShip3, 395, 410, null);
+        g2d.drawString("= 40 PTS",470,440);
+        g2d.drawString("By: Kevin Cui and Adam Gaisinsky",235,720);
+        g2d.setFont(superSmallFont);
+        if ((365<=mx)&&(mx<=641)&&(my<=650)&&(615<=my)){
+            g2d.setColor(Color.green);
+            g2d.drawString("Start Game",358,620);
+            if (mousePressed == true){
+                return false;
+            }
+        }
+        else{
+            g2d.drawString("Start Game", 358, 620);
+        }
+        return true;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent mouseEvent) {
+        mx = mouseEvent.getX();
+        my = mouseEvent.getY();
+    }
 }
 
 class Ship{
