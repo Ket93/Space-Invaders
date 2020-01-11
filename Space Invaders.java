@@ -315,6 +315,7 @@ class Enemy{
   private Image enemyShip2;
   private Image enemyShip3;
   private ArrayList<Integer> posX = new ArrayList<Integer>();
+  private Bullet enemyBullet=new Bullet("shipBullet");
   private int[][]enemies=
   {{3,3,3,3,3,3,3,3,3,3,3},
     {2,2,2,2,2,2,2,2,2,2,2},
@@ -346,6 +347,8 @@ class Enemy{
         }
       }
     }
+    enemyShoot();
+    enemyBullet.enemyBulletDraw(g);
   }
   
   public void move (){
@@ -402,25 +405,52 @@ class Enemy{
   public void setenemies(int[][]newEnemies){
     enemies=newEnemies;
   }
+  public void enemyShoot(){
+    for(int x=0; x<11; x++){
+      for(int y=4; y>=0; y--){
+        if(enemies[y][x]!=0){
+          if(randint(1,2500)==1){
+            enemyBullet.addPts(posX.get(x));
+            enemyBullet.addPts(positionY-((4-y)*50));
+          }
+          y=4;
+          x+=1;
+          if(x>=11){
+            break;
+          }
+        }
+      }  
+    }
+  }
+  public static int randint(int low, int high){
+    return (int)(Math.random()*(high-low+1)+low);
+  }
 }
 
 class Bullet{
   private int bx=0;
   private int by=650;
+  private ArrayList<Integer> enemyPts=new ArrayList<Integer>();
   private String type;
   private Image bulletPic;
   
-  public Bullet(String type){
+  public Bullet(String typeInput){
+    type=typeInput;
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/"+type+".png").getImage();
   }
   public void shipBulletshoot(int x){
     if(bx==0){
-      bx=x+22;
+      if(type.equals("shipBullet")){
+        bx=x+22;
+      }
     }
     if(by==650){
-      by-=10;
+      if(type.equals("shipBullet")){
+        by-=10;
+      }
     }
   }
+  
   public void shipBulletDraw(Graphics g){
     if(by<=0){
       by=650;
@@ -431,7 +461,24 @@ class Bullet{
       g.drawImage(bulletPic,bx,by,null);
     }
   }
-  
+  public void enemyBulletDraw(Graphics g){
+    ArrayList<Integer>remove=new ArrayList<Integer>();
+    if(enemyPts.size()>0){
+      for(int i=0; i<enemyPts.size(); i+=2){
+        g.drawImage(bulletPic,enemyPts.get(i),enemyPts.get(i+1),null);
+        enemyPts.set(i+1,enemyPts.get(i+1)+10);
+        if(enemyPts.get(i+1)>650){
+          remove.add(i);
+          remove.add(i+1);
+        }
+      }
+      int size=remove.size();
+      for(int i=0; i<size; i++){ 
+        enemyPts.remove(remove.get(i));
+      }   
+      remove.clear();
+    }
+  }
   public int getbx(){
     return bx;
   }
@@ -440,6 +487,9 @@ class Bullet{
   }
   public void reset(){
     by=-1;
+  }
+  public void addPts(int points){
+    enemyPts.add(points);
   }
 }
 class Shield{
@@ -513,10 +563,12 @@ class Shield{
 
 class Stats {
   private int score;
+  private int lives;
   private Image smallSpaceshipPic;
   
   public Stats (){
     score = 0;
+    lives=3;
     smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage();
   }
   public void draw (Graphics g){
@@ -529,9 +581,9 @@ class Stats {
     g2d.drawString(Integer.toString(score),220,50);
     g2d.setColor(Color.white);
     g2d.drawString("LIVES", 600,50);
-    g.drawImage(smallSpaceshipPic,730,20,null);
-    g.drawImage(smallSpaceshipPic,800,20,null);
-    g.drawImage(smallSpaceshipPic,870,20,null);
+    for(int i=0; i<lives; i++){
+      g.drawImage(smallSpaceshipPic,730+(i*70),20,null);
+    }
   }
   public void scoreAdd(int points){
     score+=points;
