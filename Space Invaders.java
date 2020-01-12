@@ -415,7 +415,7 @@ class Enemy{
         for(int x=0; x<11; x++){
             for(int y=4; y>=0; y--){
                 if(enemies[y][x]!=0){
-                    if(randint(1,2500)==1){
+                    if(randint(1,2000)==1){
                         enemyBullet.addPts(posX.get(x));
                         enemyBullet.addPts(positionY-((4-y)*50));
                     }
