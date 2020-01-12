@@ -105,7 +105,7 @@ class GamePanel extends JPanel implements KeyListener{
             if (keys[KeyEvent.VK_D]) {
                 ship.move(3);
             }
-            if (keys[KeyEvent.VK_A) {
+            if (keys[KeyEvent.VK_A]) {
                 ship.move(-3);
             }
             if (keys[KeyEvent.VK_RIGHT]) {
