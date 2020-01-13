@@ -62,7 +62,6 @@ class GamePanel extends JPanel implements KeyListener{
     private Enemy enemy = new Enemy();
     private Stats stats = new Stats();
     private TitleScreen title = new TitleScreen();
-    private int position;
     private boolean [] keys;
     private boolean onTitle = true;
 
@@ -92,6 +91,7 @@ class GamePanel extends JPanel implements KeyListener{
             shield.shieldDraw(g);
             stats.draw(g);
             shipBullet.shipBulletDraw(g);
+            enemy.gameWinner(g);
         }
     }
 
@@ -316,10 +316,10 @@ class Ship{
 class Enemy{
     private int positionY;
     private boolean left = false;
-    private int reachEnd;
     private Image enemyShip;
     private Image enemyShip2;
     private Image enemyShip3;
+    private Image spaceBackground;
     private ArrayList<Integer> posX = new ArrayList<Integer>();
     private Bullet enemyBullet=new Bullet("shipBullet");
     private int[][]enemies=
@@ -328,12 +328,15 @@ class Enemy{
                     {2,2,2,2,2,2,2,2,2,2,2},
                     {1,1,1,1,1,1,1,1,1,1,1},
                     {1,1,1,1,1,1,1,1,1,1,1}};
+    private int enemyCount;
 
     public Enemy () {
+        enemyCount = 0;
         for (int i = 50; i<600 ;i+=50) {
             posX.add(i);
         }
         positionY = 350;
+        spaceBackground = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
         enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
         enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
         enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
@@ -428,6 +431,31 @@ class Enemy{
             }
         }
     }
+
+    public void gameWinner(Graphics g){
+        Graphics2D g2d = (Graphics2D) g;
+        Font winFont = new Font ("Consolas",Font.PLAIN,150);
+        Font scoreFont = new Font ("Consolas", Font.PLAIN, 60);
+        g2d.setFont(winFont);
+        enemyCount = 0;
+        for (int i = 0; i<5; i++){
+            for (int k = 0; k<11;k++){
+                if (enemies[i][k] == 0){
+                    enemyCount += 1;
+                }
+            }
+        }
+        
+        if (Stats.getLives() == 0){
+            g.drawImage(spaceBackground, 0, 0, null);
+            g2d.setColor(Color.green);
+            g2d.drawString("GAME OVER!", 160, 340);
+            g2d.setFont(scoreFont);
+            g2d.setColor(Color.white);
+            g2d.drawString("SCORE: " + Stats.getScore(),320, 450);
+        }
+    }
+
     public static int randint(int low, int high){
         return (int)(Math.random()*(high-low+1)+low);
     }
@@ -570,13 +598,13 @@ class Shield{
 }
 
 class Stats {
-    private int score;
-    private int lives;
+    private static int score;
+    private static int lives;
     private Image smallSpaceshipPic;
 
     public Stats (){
         score = 0;
-        lives=3;
+        lives = 3;
         smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage();
     }
     public void draw (Graphics g){
@@ -596,4 +624,6 @@ class Stats {
     public void scoreAdd(int points){
         score+=points;
     }
+    public static int getScore(){return score;}
+    public static int getLives() {return lives;}
 }
