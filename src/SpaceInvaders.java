@@ -11,6 +11,7 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
   
   public SpaceInvaders (){
     super ("Space Invaders");
+    System.out.println(System.getProperty("user.dir"));
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1000,850);
     
