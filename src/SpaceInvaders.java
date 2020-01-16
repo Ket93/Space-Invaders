@@ -262,7 +262,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  public int randint(int low, int high){
+  public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
 }
@@ -274,11 +274,13 @@ class TitleScreen implements MouseListener, MouseMotionListener{
   private Image enemyShip1;
   private Image enemyShip2;
   private Image enemyShip3;
+  private Image ufoPic;
   private boolean mousePressed;
   private int mx;
   private int my;
 
   public TitleScreen(){
+    ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();
     spacePic = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip1 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
     enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
@@ -333,6 +335,8 @@ class TitleScreen implements MouseListener, MouseMotionListener{
     g2d.drawString("= 20 PTS",470,380);
     g.drawImage(enemyShip3, 395, 410, null);
     g2d.drawString("= 40 PTS",470,440);
+    g.drawImage(ufoPic, 385, 483, null);
+    g2d.drawString("= ? PTS",470,505);
     g2d.drawString("By: Kevin Cui and Adam Gaisinsky",235,720);
     g2d.setFont(superSmallFont);
     if ((365<=mx)&&(mx<=641)&&(my<=650)&&(615<=my)){
@@ -403,6 +407,12 @@ class Enemy{
   private Image enemyShip2;
   private Image enemyShip3;
   private Image spaceBackground;
+  private Image ufoPic;
+  private boolean ufoOnScreen;
+  private int ufoPosX;
+  private int ufoPosY;
+  private boolean ufoLeft;
+  private int ufoCount;
   private ArrayList<Integer> posX = new ArrayList<Integer>();
   private int[][]enemies=
           {{3,3,3,3,3,3,3,3,3,3,3},
@@ -413,11 +423,17 @@ class Enemy{
   private int enemyCount;
 
   public Enemy () {
+    ufoCount = 0;
+    positionY = 370;
+    ufoOnScreen = false;
+    ufoLeft = true;
+    ufoPosX = 924;
+    ufoPosY = 80;
     enemyCount = 0;
     for (int i = 50; i<600 ;i+=50) {
       posX.add(i);
     }
-    positionY = 350;
+    ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();
     spaceBackground = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
     enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
@@ -425,19 +441,48 @@ class Enemy{
   }
 
   public void draw (Graphics g) {
-    for(int y=0; y<5; y++){
-      for(int x=0; x<11; x++){
-        if(enemies[y][x]==3){
-          g.drawImage(enemyShip3, posX.get(0)+(x*50), positionY-250+(y*50), null);
-        }
-        else if(enemies[y][x]==2){
-          g.drawImage(enemyShip2, posX.get(0)+(x*50), positionY-250+(y*50), null);
-        }
-        else if(enemies[y][x]==1){
-          g.drawImage(enemyShip, posX.get(0)+(x*50), positionY-250+(y*50), null);
+    for (int y = 0; y < 5; y++) {
+      for (int x = 0; x < 11; x++) {
+        if (enemies[y][x] == 3) {
+          g.drawImage(enemyShip3, posX.get(0) + (x * 50), positionY - 250 + (y * 50), null);
+        } else if (enemies[y][x] == 2) {
+          g.drawImage(enemyShip2, posX.get(0) + (x * 50), positionY - 250 + (y * 50), null);
+        } else if (enemies[y][x] == 1) {
+          g.drawImage(enemyShip, posX.get(0) + (x * 50), positionY - 250 + (y * 50), null);
         }
       }
     }
+    if ((GamePanel.randint(0, 500) == 1) && ufoOnScreen == false) {
+      ufoOnScreen = true;
+    }
+    if (ufoOnScreen == true) {
+      g.drawImage(ufoPic, ufoPosX, ufoPosY, null);
+      ufoMove();
+    }
+
+    if (ufoCount == 3 && ufoPosX<-50) {
+      ufoOnScreen = false;
+      ufoPosX = 924;
+      ufoCount = 0;
+
+    }
+  }
+  public void ufoMove(){
+    if (ufoPosX == 0 && ufoCount != 3){
+      ufoLeft = false;
+      ufoCount +=1;
+    }
+    if (ufoPosX == 924 && ufoCount !=3){
+      ufoLeft = true;
+      ufoCount +=1;
+    }
+    if (ufoLeft == true){
+      ufoPosX += -3;
+    }
+    if (ufoLeft == false){
+      ufoPosX += 3;
+    }
+
   }
 
   public void move (){
