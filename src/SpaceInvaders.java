@@ -8,16 +8,16 @@ import java.util.*;
 public class SpaceInvaders extends JFrame implements ActionListener, KeyListener {
   Timer myTimer;
   GamePanel game = new GamePanel();
-  
+
   public SpaceInvaders (){
     super ("Space Invaders");
     System.out.println(System.getProperty("user.dir"));
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1000,850);
-    
+
     myTimer = new Timer(10, this);
     myTimer.start();
-    
+
     setFocusable(true);
     requestFocus();
     setVisible (true);
@@ -25,34 +25,34 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
     addKeyListener(this);
     addMouseListener(game.getTitleScreen());
     addMouseMotionListener(game.getTitleScreen());
-    
+
     add(game);
-    
+
   }
-  
+
   public void actionPerformed(ActionEvent evt){
     game.move();
     game.repaint();
   }
-  
-  
+
+
   public static void main (String [] args){
     SpaceInvaders frame = new SpaceInvaders();
   }
-  
+
   @Override
   public void keyTyped(KeyEvent keyEvent) {
-    
+
   }
-  
+
   @Override
   public void keyPressed(KeyEvent keyEvent) {
-    
+
   }
-  
+
   @Override
   public void keyReleased(KeyEvent keyEvent) {
-    
+
   }
 }
 
@@ -69,10 +69,10 @@ class GamePanel extends JPanel implements KeyListener{
   private TitleScreen title = new TitleScreen();
   private boolean [] keys;
   private boolean onTitle = true;
-  
+
   public GamePanel(){
     setSize(1000,850);
-    
+
     keys = new boolean[KeyEvent.KEY_LAST+1];
     addKeyListener(this);
   }
@@ -81,7 +81,7 @@ class GamePanel extends JPanel implements KeyListener{
     setFocusable(true);
     requestFocus();
   }
-  
+
   public void paintComponent(Graphics g){
     if (onTitle){
       onTitle = title.draw(g);
@@ -92,22 +92,23 @@ class GamePanel extends JPanel implements KeyListener{
       ship.draw(g);
       shieldEdit();
       enemyCheck();
-      enemy.draw(g);
       enemyShoot();
       enemyshieldEdit();
-      enemyBullet.enemyBulletDraw(g);
       shield.shieldDraw(g);
+      enemy.draw(g);
+      enemyBullet.enemyBulletDraw(g);
       stats.draw(g);
       shipBullet.shipBulletDraw(g);
+      shipCheck();
       enemy.gameWinner(g);
     }
   }
-  
+
   public TitleScreen getTitleScreen(){
     return title;
   }
-  
-  
+
+
   public void move(){
     if(!onTitle){
       if (keys[KeyEvent.VK_D]) {
@@ -128,14 +129,14 @@ class GamePanel extends JPanel implements KeyListener{
       enemy.move();
     }
   }
-  
+
   public void keyTyped(KeyEvent keyEvent) {
   }
-  
+
   public void keyPressed(KeyEvent keyEvent) {
     keys[keyEvent.getKeyCode()] = true;
   }
-  
+
   public void keyReleased(KeyEvent keyEvent) {
     keys[keyEvent.getKeyCode()] = false;
   }
@@ -246,8 +247,22 @@ class GamePanel extends JPanel implements KeyListener{
         }
       }
     }
-  }  
-  public static int randint(int low, int high){
+  }
+  public void shipCheck(){
+    ArrayList<Integer> enemyPts=enemyBullet.getenemyPts();
+    if(enemyPts.size()>0){
+      for(int i=0; i<enemyPts.size(); i+=2){
+        if(enemyPts.get(i+1)>=650 && enemyPts.get(i+1)<=720){
+          if(ship.position()<=enemyPts.get(i) && enemyPts.get(i)<=ship.position()+60) {
+            stats.setLives();
+            enemyBullet.enemyBulletClear();
+            break;
+          }
+        }
+      }
+    }
+  }
+  public int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
 }
@@ -262,41 +277,41 @@ class TitleScreen implements MouseListener, MouseMotionListener{
   private boolean mousePressed;
   private int mx;
   private int my;
-  
+
   public TitleScreen(){
     spacePic = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip1 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
     enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
     enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
   }
-  
+
   @Override
   public void mouseClicked(MouseEvent mouseEvent) {
-    
+
   }
-  
+
   public void mousePressed (MouseEvent e){
     if (e.getButton() == MouseEvent.BUTTON1){
       mousePressed = true;
     }
   }
-  
+
   public void mouseReleased (MouseEvent e){
     if (e.getButton() == MouseEvent.BUTTON1){
       mousePressed = false;
     }
   }
-  
+
   @Override
   public void mouseEntered(MouseEvent mouseEvent) {
-    
+
   }
-  
+
   @Override
   public void mouseExited(MouseEvent mouseEvent) {
-    
+
   }
-  
+
   public boolean draw (Graphics g){
     g.drawImage(spacePic, 0, 0, null);
     Graphics2D g2d = (Graphics2D) g;
@@ -332,12 +347,12 @@ class TitleScreen implements MouseListener, MouseMotionListener{
     }
     return true;
   }
-  
+
   @Override
   public void mouseDragged(MouseEvent mouseEvent) {
-    
+
   }
-  
+
   @Override
   public void mouseMoved(MouseEvent mouseEvent) {
     mx = mouseEvent.getX();
@@ -353,7 +368,7 @@ class Ship{
   private int score;
   private int position;
   private Image shipPic;
-  
+
   public Ship(){
     lives = 3;
     score  = 0;
@@ -372,7 +387,7 @@ class Ship{
   public void draw(Graphics g){
     g.drawImage(shipPic,position,650,null);
   }
-  
+
   public int position(){
     return position;
   }
@@ -390,13 +405,13 @@ class Enemy{
   private Image spaceBackground;
   private ArrayList<Integer> posX = new ArrayList<Integer>();
   private int[][]enemies=
-  {{3,3,3,3,3,3,3,3,3,3,3},
-    {2,2,2,2,2,2,2,2,2,2,2},
-    {2,2,2,2,2,2,2,2,2,2,2},
-    {1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1}};
+          {{3,3,3,3,3,3,3,3,3,3,3},
+                  {2,2,2,2,2,2,2,2,2,2,2},
+                  {2,2,2,2,2,2,2,2,2,2,2},
+                  {1,1,1,1,1,1,1,1,1,1,1},
+                  {1,1,1,1,1,1,1,1,1,1,1}};
   private int enemyCount;
-  
+
   public Enemy () {
     enemyCount = 0;
     for (int i = 50; i<600 ;i+=50) {
@@ -408,7 +423,7 @@ class Enemy{
     enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
     enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
   }
-  
+
   public void draw (Graphics g) {
     for(int y=0; y<5; y++){
       for(int x=0; x<11; x++){
@@ -424,7 +439,7 @@ class Enemy{
       }
     }
   }
-  
+
   public void move (){
     int edgePos=0;
     if(left){
@@ -466,7 +481,7 @@ class Enemy{
       }
     }
   }
-  
+
   public int[][] getenemies(){
     return enemies;
   }
@@ -479,7 +494,7 @@ class Enemy{
   public void setenemies(int[][]newEnemies){
     enemies=newEnemies;
   }
-  
+
   public void gameWinner(Graphics g){
     Graphics2D g2d = (Graphics2D) g;
     Font winFont = new Font ("Consolas",Font.PLAIN,150);
@@ -493,7 +508,7 @@ class Enemy{
         }
       }
     }
-    
+
     if (Stats.getLives() == 0){
       g.drawImage(spaceBackground, 0, 0, null);
       g2d.setColor(Color.green);
@@ -514,20 +529,20 @@ class Bullet{
   private ArrayList<Integer> enemyPts=new ArrayList<Integer>();
   private Image bulletPic;
   private Image enemyBulletPic;
-  
+
   public Bullet(){
     enemyBulletPic = new ImageIcon("SpaceInvadersIMGS/Bullets/enemybullet.png").getImage();
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/shipBullet.png").getImage();
   }
   public void shipBulletshoot(int x){
-    if(bx==0){        
-      bx=x+22;        
+    if(bx==0){
+      bx=x+22;
     }
-    if(by==650){        
-      by-=10;       
+    if(by==650){
+      by-=10;
     }
   }
-  
+
   public void shipBulletDraw(Graphics g){
     if(by<=0){
       by=650;
@@ -575,6 +590,9 @@ class Bullet{
     enemyPts.remove(y);
     enemyPts.remove(x);
   }
+  public void enemyBulletClear(){
+    enemyPts.clear();
+  }
 }
 
 
@@ -582,24 +600,24 @@ class Bullet{
 
 class Shield{
   private int[][]shield1=
-  {{0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0}};
-  
+          {{0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0}};
+
   private int[][]shield2=
-  {{0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0}};
+          {{0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0}};
   private int[][]shield3=
-  {{0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,0,0,0,0,0,0}};
+          {{0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0}};
   public Shield(){
   }
   public void shieldDraw(Graphics g){
@@ -656,7 +674,7 @@ class Stats {
   private static int score;
   private static int lives;
   private Image smallSpaceshipPic;
-  
+
   public Stats (){
     score = 0;
     lives = 3;
@@ -681,4 +699,5 @@ class Stats {
   }
   public static int getScore(){return score;}
   public static int getLives() {return lives;}
+  public static void setLives(){lives-=1;}
 }
