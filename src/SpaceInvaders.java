@@ -94,6 +94,7 @@ class GamePanel extends JPanel implements KeyListener{
       enemyCheck();
       enemyShoot();
       enemyshieldEdit();
+      ufoCheck();
       shield.shieldDraw(g);
       enemy.draw(g);
       enemyBullet.enemyBulletDraw(g);
@@ -262,6 +263,15 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
+  public void ufoCheck(){
+    if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
+      if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
+        enemy.ufoOffScreen();
+        shipBullet.reset();
+      }
+    }
+  }
+    
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -460,7 +470,7 @@ class Enemy{
       ufoMove();
     }
 
-    if (ufoCount == 3 && ufoPosX<-50) {
+    if ((ufoCount == 3 && ufoPosX<-50) | ufoOnScreen==false) {
       ufoOnScreen = false;
       ufoPosX = 924;
       ufoCount = 0;
@@ -563,6 +573,15 @@ class Enemy{
       g2d.drawString("SCORE: " + Stats.getScore(),320, 450);
     }
   }
+  public int UFOx(){
+    return ufoPosX;
+  }
+  public int UFOy(){
+    return ufoPosY;
+  }
+  public void ufoOffScreen(){
+    ufoOnScreen=false;
+  }    
 }
 
 
