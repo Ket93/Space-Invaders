@@ -266,12 +266,14 @@ class GamePanel extends JPanel implements KeyListener{
   public void ufoCheck(){
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
+        int points = randint(1,3);
+        stats.setScore(points*50);
         enemy.ufoOffScreen();
         shipBullet.reset();
       }
     }
   }
-    
+
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -462,7 +464,7 @@ class Enemy{
         }
       }
     }
-    if ((GamePanel.randint(0, 500) == 1) && ufoOnScreen == false) {
+    if ((GamePanel.randint(0, 750) == 1) && ufoOnScreen == false) {
       ufoOnScreen = true;
     }
     if (ufoOnScreen == true) {
@@ -581,7 +583,7 @@ class Enemy{
   }
   public void ufoOffScreen(){
     ufoOnScreen=false;
-  }    
+  }
 }
 
 
@@ -762,6 +764,7 @@ class Stats {
     score+=points;
   }
   public static int getScore(){return score;}
+  public static void setScore(int addScore){score += addScore;}
   public static int getLives() {return lives;}
   public static void setLives(){lives-=1;}
 }
