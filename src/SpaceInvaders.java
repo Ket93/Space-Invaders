@@ -205,7 +205,7 @@ class GamePanel extends JPanel implements KeyListener{
     for(int x=0; x<11; x++){
       for(int y=4; y>=0; y--){
         if(enemies[y][x]!=0){
-          if(randint(1,2000)==1){
+          if(randint(1,2000-enemy.bulletSpeed())==1){
             enemyBullet.addPts(enemy.getposX().get(x));
             enemyBullet.addPts(enemy.getpositionY()-((4-y)*50));
           }
@@ -257,6 +257,7 @@ class GamePanel extends JPanel implements KeyListener{
           if(ship.position()<=enemyPts.get(i) && enemyPts.get(i)<=ship.position()+60) {
             stats.setLives();
             enemyBullet.enemyBulletClear();
+            enemy.resetEnemies();
             break;
           }
         }
@@ -266,14 +267,12 @@ class GamePanel extends JPanel implements KeyListener{
   public void ufoCheck(){
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
-        int points = randint(1,3);
-        stats.setScore(points*50);
         enemy.ufoOffScreen();
         shipBullet.reset();
       }
     }
   }
-
+    
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -433,6 +432,7 @@ class Enemy{
                   {1,1,1,1,1,1,1,1,1,1,1},
                   {1,1,1,1,1,1,1,1,1,1,1}};
   private int enemyCount;
+  private int bulletSpeed;
 
   public Enemy () {
     ufoCount = 0;
@@ -450,6 +450,7 @@ class Enemy{
     enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
     enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
     enemyShip3 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy3.png").getImage();
+    bulletSpeed=0;
   }
 
   public void draw (Graphics g) {
@@ -464,7 +465,7 @@ class Enemy{
         }
       }
     }
-    if ((GamePanel.randint(0, 750) == 1) && ufoOnScreen == false) {
+    if ((GamePanel.randint(0, 500) == 1) && ufoOnScreen == false) {
       ufoOnScreen = true;
     }
     if (ufoOnScreen == true) {
@@ -498,9 +499,9 @@ class Enemy{
   }
 
   public void move (){
-    int edgePos=0;
+    int edgePos=-1;
     if(left){
-      for(int x=0; x<10; x++){
+      for(int x=0; x<11; x++){
         for(int y=0; y<5; y++){
           if(enemies[y][x]!=0){
             edgePos=x;
@@ -508,6 +509,20 @@ class Enemy{
             y=99;
           }
         }
+      }
+      if(edgePos==-1){
+        for (int y = 0; y < 5; y++) {
+          for (int x = 0; x < 11; x++) {
+            enemies[y][x]=(y+2)/2;
+          }
+        }
+        positionY=370;
+        posX.clear();
+        for (int i = 50; i<600 ;i+=50) {
+          posX.add(i);
+        }
+        bulletSpeed+=200;
+        edgePos=0;
       }
       if (posX.get(edgePos)==0){
         left = false;
@@ -524,6 +539,20 @@ class Enemy{
           }
         }
       }
+      if(edgePos==-1){
+        for (int y = 0; y < 5; y++) {
+          for (int x = 0; x < 11; x++) {
+            enemies[y][x]=(y+2)/2;
+          }
+        }
+        positionY=370;
+        posX.clear();
+        for (int i = 50; i<600 ;i+=50) {
+          posX.add(i);
+        }
+        bulletSpeed+=200;
+        edgePos=0;
+      }
       if (posX.get(edgePos)==930){
         left = true;
         positionY+=20;
@@ -538,7 +567,7 @@ class Enemy{
       }
     }
   }
-
+      
   public int[][] getenemies(){
     return enemies;
   }
@@ -548,8 +577,14 @@ class Enemy{
   public int getpositionY(){
     return positionY;
   }
+  public void resetEnemies(){
+    positionY=370;
+  }
   public void setenemies(int[][]newEnemies){
     enemies=newEnemies;
+  }
+  public int bulletSpeed(){
+    return bulletSpeed;
   }
 
   public void gameWinner(Graphics g){
@@ -583,7 +618,7 @@ class Enemy{
   }
   public void ufoOffScreen(){
     ufoOnScreen=false;
-  }
+  }    
 }
 
 
@@ -764,7 +799,6 @@ class Stats {
     score+=points;
   }
   public static int getScore(){return score;}
-  public static void setScore(int addScore){score += addScore;}
   public static int getLives() {return lives;}
   public static void setLives(){lives-=1;}
 }
