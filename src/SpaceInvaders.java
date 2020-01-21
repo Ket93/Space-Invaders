@@ -31,10 +31,10 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
   }
 
   public void actionPerformed(ActionEvent evt){
-    game.move();
-    game.repaint();
-  }
+      game.move();
+      game.repaint();
 
+  }
 
   public static void main (String [] args){
     SpaceInvaders frame = new SpaceInvaders();
@@ -68,15 +68,16 @@ class GamePanel extends JPanel implements KeyListener{
   private Stats stats = new Stats();
   private TitleScreen title = new TitleScreen();
   private boolean [] keys;
-  private boolean onTitle = true;
-  public boolean shipHit;
-  public int shipCount;
+  private boolean onTitle;
+  private boolean shipHit;
+  private int shipCount;
 
   public GamePanel(){
     setSize(1000,850);
 
     keys = new boolean[KeyEvent.KEY_LAST+1];
     addKeyListener(this);
+    onTitle = true;
     shipHit = false;
     shipCount = 0;
   }
@@ -120,7 +121,6 @@ class GamePanel extends JPanel implements KeyListener{
   public TitleScreen getTitleScreen(){
     return title;
   }
-
 
   public void move(){
     if(!onTitle){
@@ -234,8 +234,6 @@ class GamePanel extends JPanel implements KeyListener{
     ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();
     for(int i=0; i<enemyPts.size(); i+=2){
       int bx=enemyPts.get(i);
-      System.out.println("sz " + enemyPts.size());
-      System.out.println("i" + i);
       int by=enemyPts.get(i+1);
       if(700<=bx+10 && bx+10<820){
         if(500<=by && by<560){
@@ -447,7 +445,6 @@ class Enemy{
                   {2,2,2,2,2,2,2,2,2,2,2},
                   {1,1,1,1,1,1,1,1,1,1,1},
                   {1,1,1,1,1,1,1,1,1,1,1}};
-  private int enemyCount;
   private int bulletSpeed;
 
   public Enemy () {
@@ -457,7 +454,6 @@ class Enemy{
     ufoLeft = true;
     ufoPosX = 924;
     ufoPosY = 80;
-    enemyCount = 0;
     for (int i = 50; i<600 ;i+=50) {
       posX.add(i);
     }
@@ -608,16 +604,9 @@ class Enemy{
     Font winFont = new Font ("Consolas",Font.PLAIN,150);
     Font scoreFont = new Font ("Consolas", Font.PLAIN, 60);
     g2d.setFont(winFont);
-    enemyCount = 0;
-    for (int i = 0; i<5; i++){
-      for (int k = 0; k<11;k++){
-        if (enemies[i][k] == 0){
-          enemyCount += 1;
-        }
-      }
-    }
 
     if (Stats.getLives() <= 0){
+      Stats.setGameOver(true);
       g.drawImage(spaceBackground, 0, 0, null);
       g2d.setColor(Color.green);
       g2d.drawString("GAME OVER!", 100, 340);
@@ -790,11 +779,13 @@ class Shield{
 class Stats {
   private static int score;
   private static int lives;
+  private static boolean gameOver;
   private Image smallSpaceshipPic;
 
   public Stats (){
     score = 0;
     lives = 3;
+    gameOver = false;
     smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage();
   }
   public void draw (Graphics g){
@@ -820,9 +811,12 @@ class Stats {
 
   }
   public void scoreAdd(int points){
-    score+=points;
+    if (!gameOver) {
+      score += points;
+    }
   }
   public static int getScore(){return score;}
   public static int getLives() {return lives;}
   public static void setLives(){lives-=1;}
+  public static void setGameOver(boolean setGameOver){gameOver = setGameOver;}
 }
