@@ -69,12 +69,16 @@ class GamePanel extends JPanel implements KeyListener{
   private TitleScreen title = new TitleScreen();
   private boolean [] keys;
   private boolean onTitle = true;
+  public boolean shipHit;
+  public int shipCount;
 
   public GamePanel(){
     setSize(1000,850);
 
     keys = new boolean[KeyEvent.KEY_LAST+1];
     addKeyListener(this);
+    shipHit = false;
+    shipCount = 0;
   }
   public void addNotify(){
     super.addNotify();
@@ -100,6 +104,14 @@ class GamePanel extends JPanel implements KeyListener{
       enemyBullet.enemyBulletDraw(g);
       stats.draw(g);
       shipBullet.shipBulletDraw(g);
+      if (shipHit) {
+        stats.drawLives(g);
+        shipCount +=1;
+        if (shipCount == 70) {
+          shipHit = false;
+          shipCount = 0;
+        }
+      }
       shipCheck();
       enemy.gameWinner(g);
     }
@@ -222,6 +234,8 @@ class GamePanel extends JPanel implements KeyListener{
     ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();
     for(int i=0; i<enemyPts.size(); i+=2){
       int bx=enemyPts.get(i);
+      System.out.println("sz " + enemyPts.size());
+      System.out.println("i" + i);
       int by=enemyPts.get(i+1);
       if(700<=bx+10 && bx+10<820){
         if(500<=by && by<560){
@@ -258,6 +272,7 @@ class GamePanel extends JPanel implements KeyListener{
             stats.setLives();
             enemyBullet.enemyBulletClear();
             enemy.resetEnemies();
+            shipHit = true;
             break;
           }
         }
@@ -268,11 +283,12 @@ class GamePanel extends JPanel implements KeyListener{
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
         enemy.ufoOffScreen();
+        stats.scoreAdd(randint(1,3)*50);
         shipBullet.reset();
       }
     }
   }
-    
+
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -381,7 +397,7 @@ class TitleScreen implements MouseListener, MouseMotionListener{
 class Ship{
   private int lives;
   private int score;
-  private int position;
+  private static int position;
   private Image shipPic;
 
   public Ship(){
@@ -403,7 +419,7 @@ class Ship{
     g.drawImage(shipPic,position,650,null);
   }
 
-  public int position(){
+  public static int position(){
     return position;
   }
 }
@@ -465,7 +481,7 @@ class Enemy{
         }
       }
     }
-    if ((GamePanel.randint(0, 500) == 1) && ufoOnScreen == false) {
+    if ((GamePanel.randint(0, 1000) == 1) && ufoOnScreen == false) {
       ufoOnScreen = true;
     }
     if (ufoOnScreen == true) {
@@ -567,7 +583,7 @@ class Enemy{
       }
     }
   }
-      
+
   public int[][] getenemies(){
     return enemies;
   }
@@ -601,10 +617,10 @@ class Enemy{
       }
     }
 
-    if (Stats.getLives() == 0){
+    if (Stats.getLives() <= 0){
       g.drawImage(spaceBackground, 0, 0, null);
       g2d.setColor(Color.green);
-      g2d.drawString("GAME OVER!", 160, 340);
+      g2d.drawString("GAME OVER!", 100, 340);
       g2d.setFont(scoreFont);
       g2d.setColor(Color.white);
       g2d.drawString("SCORE: " + Stats.getScore(),320, 450);
@@ -618,7 +634,7 @@ class Enemy{
   }
   public void ufoOffScreen(){
     ufoOnScreen=false;
-  }    
+  }
 }
 
 
@@ -794,6 +810,14 @@ class Stats {
     for(int i=0; i<lives; i++){
       g.drawImage(smallSpaceshipPic,730+(i*70),20,null);
     }
+  }
+  public void drawLives (Graphics g){
+    Graphics2D g2d = (Graphics2D) g;
+    Font font = new Font("Consolas",Font.PLAIN,40);
+    g2d.setFont(font);
+    g2d.setColor(Color.red);
+    g2d.drawString("-1", Ship.position()+20 ,630);
+
   }
   public void scoreAdd(int points){
     score+=points;
