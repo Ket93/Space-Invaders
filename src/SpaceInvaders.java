@@ -660,21 +660,16 @@ class Bullet{
     }
   }
   public void enemyBulletDraw(Graphics g){
-    ArrayList<Integer>remove=new ArrayList<Integer>();
     if(enemyPts.size()>0){
       for(int i=0; i<enemyPts.size(); i+=2){
         g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null);
         enemyPts.set(i+1,enemyPts.get(i+1)+8);
-        if(enemyPts.get(i+1)>650){
-          remove.add(i);
-          remove.add(i+1);
+        if(enemyPts.get(i+1)>850){
+          enemyPts.remove(i+1);
+          enemyPts.remove(i);
+          break;
         }
       }
-      int size=remove.size();
-      for(int i=size-1; i>=0; i--){
-        enemyPts.remove(remove.get(i));
-      }
-      remove.clear();
     }
   }
   public int getbx(){
