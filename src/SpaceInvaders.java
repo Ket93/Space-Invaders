@@ -152,19 +152,22 @@ class GamePanel extends JPanel implements KeyListener{
 
   public void keyReleased(KeyEvent keyEvent) {
     keys[keyEvent.getKeyCode()] = false;
-  }
-  public void shieldEdit(){
-    int bx=shipBullet.getbx();
+  } 
+  
+  public void shieldEdit(){       // Method that takes the bullets shot by the ship and checks if they are colliding with the shield
+    int bx=shipBullet.getbx();    // Gets the x and y co ordinate of the shipBullet 
     int by=shipBullet.getby();
-    if(200<=bx+10 && bx+10<320){
+    if(200<=bx+10 && bx+10<320){  // Checks to see if the bx and by are in the range of the first shield
       if(500<=by && by<560){
-        if(shield.getShield1()[(by-500)/12][(bx-200+10)/12]==0){
-          shield.setShield1((bx-200+10)/12,(by-500)/12);
-          shipBullet.reset();
+        if(shield.getShield1()[(by-500)/12][(bx-200+10)/12]==0){  // If the bullet is hitting the shield, the shield is checked to see if there is actually shield there or if it has already been destroyed.
+// The by-500 subtracts off the y value of the shield leaving numbers from 0-60. When divided by 12, you get an index which correspons to a spot in the shield array. 
+// The distance away from the edge is subtracted from the x value to leave values from 0,120. This is divided by 12 which corresponds to a spot in the shield array. With x and y, you get an index from a 10 x 6 shield. 
+          shield.setShield1((bx-200+10)/12,(by-500)/12);          // Takes the co ordinate and calculates the x and y indexes in the shield array using ranges and division. The shield at that index is set to false meaning that it will be destroyed
+          shipBullet.reset();   // The bullet is reset if it destroys the shield
         }
       }
     }
-    else if(450<=bx+10 && bx+10<570){
+    else if(450<=bx+10 && bx+10<570){    // Same steps are repeated for sheild 2 except the bx values are subtracted by more as these shields are further from the edge
       if(500<=by && by<560){
         if(shield.getShield2()[(by-500)/12][(bx-450+10)/12]==0){
           shield.setShield2((bx-450+10)/12,(by-500)/12);
@@ -172,7 +175,7 @@ class GamePanel extends JPanel implements KeyListener{
         }
       }
     }
-    else if(700<=bx+10 && bx+10<820){
+    else if(700<=bx+10 && bx+10<820){    // Same steps are repeated for the third shield
       if(500<=by && by<560){
         if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){
           shield.setShield3((bx-700+10)/12,(by-500)/12);
@@ -181,14 +184,15 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  public void enemyCheck(){
-    int bx=shipBullet.getbx();
+    
+  public void enemyCheck(){                  // Checks if the shipBullet collides with an enemy
+    int bx=shipBullet.getbx();               // Gets the x and y position of the shipBullet
     int by=shipBullet.getby();
-    ArrayList<Integer>posX=enemy.getposX();
-    int posY=enemy.getpositionY();
-    int[][]enemies=enemy.getenemies();
-    if(posY-250<by && by<posY && posX.get(0)<bx && bx<posX.get(posX.size()-1)+50){
-      for(int y=0; y<5; y++){
+    ArrayList<Integer>posX=enemy.getposX();  // posX is an array of all the x positions of the enemies
+    int posY=enemy.getpositionY();           // posY is the Y position of the bottom most enemy
+    int[][]enemies=enemy.getenemies();       // enemies is an array of the enemies (1,2,3 represent enemy types
+    if(posY-250<by && by<posY && posX.get(0)<bx && bx<posX.get(posX.size()-1)+50){ // If the shipBullet is in the range of connecting with an enemy
+      for(int y=0; y<5; y++){                                 // Loops for every value in the enemy array (55 indexes)
         for(int x=0; x<11; x++){
           if(enemies[y][x]!=0){
             if(posX.get(x)<bx && bx<posX.get(x)+50){
@@ -212,6 +216,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
+   
   public void enemyShoot(){
     int[][]enemies=enemy.getenemies();
     for(int x=0; x<11; x++){
@@ -230,6 +235,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
+  
   public void enemyshieldEdit(){
     ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();
     for(int i=0; i<enemyPts.size(); i+=2){
@@ -261,6 +267,17 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
+  
+  public void ufoCheck(){
+    if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
+      if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
+        enemy.ufoOffScreen();
+        stats.scoreAdd(randint(1,3)*50);
+        shipBullet.reset();
+      }
+    }
+  }
+  
   public void shipCheck(){
     ArrayList<Integer> enemyPts=enemyBullet.getenemyPts();
     if(enemyPts.size()>0){
@@ -277,16 +294,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  public void ufoCheck(){
-    if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
-      if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
-        enemy.ufoOffScreen();
-        stats.scoreAdd(randint(1,3)*50);
-        shipBullet.reset();
-      }
-    }
-  }
-
+  
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -509,7 +517,7 @@ class Enemy{
     }
 
   }
-
+  
   public void move (){
     int edgePos=-1;
     if(left){
@@ -517,28 +525,14 @@ class Enemy{
         for(int y=0; y<5; y++){
           if(enemies[y][x]!=0){
             edgePos=x;
+            if (posX.get(edgePos)==0){
+              left = false;
+              positionY+=20;
+            }
             x=99;
             y=99;
           }
         }
-      }
-      if(edgePos==-1){
-        for (int y = 0; y < 5; y++) {
-          for (int x = 0; x < 11; x++) {
-            enemies[y][x]=(y+2)/2;
-          }
-        }
-        positionY=370;
-        posX.clear();
-        for (int i = 50; i<600 ;i+=50) {
-          posX.add(i);
-        }
-        bulletSpeed+=200;
-        edgePos=0;
-      }
-      if (posX.get(edgePos)==0){
-        left = false;
-        positionY+=20;
       }
     }
     else if(!left){
@@ -546,28 +540,14 @@ class Enemy{
         for(int y=0; y<5; y++){
           if(enemies[y][x]!=0){
             edgePos=x;
+            if (posX.get(edgePos)==930){
+              left = true;
+              positionY+=20;
+            }
             x=-99;
             y=99;
           }
         }
-      }
-      if(edgePos==-1){
-        for (int y = 0; y < 5; y++) {
-          for (int x = 0; x < 11; x++) {
-            enemies[y][x]=(y+2)/2;
-          }
-        }
-        positionY=370;
-        posX.clear();
-        for (int i = 50; i<600 ;i+=50) {
-          posX.add(i);
-        }
-        bulletSpeed+=200;
-        edgePos=0;
-      }
-      if (posX.get(edgePos)==930){
-        left = true;
-        positionY+=20;
       }
     }
     for (int i = 0; i<11; i++){
@@ -577,6 +557,20 @@ class Enemy{
       else if (!left){
         posX.set(i,posX.get(i)+1);
       }
+    }
+    if(edgePos==-1){
+      for (int y = 4; y >= 0; y--) {
+        for (int x = 0; x < 11; x++) {
+          enemies[4-y][x]=(y+2)/2;
+        }
+      }
+      positionY=370;
+      posX.clear();
+      for (int i = 50; i<600 ;i+=50) {
+        posX.add(i);
+      }
+      bulletSpeed+=200;
+      edgePos=0;
     }
   }
 
@@ -664,7 +658,7 @@ class Bullet{
       for(int i=0; i<enemyPts.size(); i+=2){
         g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null);
         enemyPts.set(i+1,enemyPts.get(i+1)+8);
-        if(enemyPts.get(i+1)>850){
+        if(enemyPts.get(i+1)>800){
           enemyPts.remove(i+1);
           enemyPts.remove(i);
           break;
