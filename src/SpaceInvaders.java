@@ -11,7 +11,7 @@ import javax.sound.sampled.*;
 public class SpaceInvaders extends JFrame implements ActionListener, KeyListener {
   Timer myTimer;
   GamePanel game = new GamePanel();
-  public static Sequencer midiPlayer;
+  public static Sequencer midiPlayer; // Midi music player 
 
   public SpaceInvaders (){
     super ("Space Invaders");
@@ -29,20 +29,20 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
     addKeyListener(this);
     addMouseListener(game.getTitleScreen());
     addMouseMotionListener(game.getTitleScreen());
-    startMidi("SpaceInvadersSound/trippygaia1.mid");
+    startMidi("SpaceInvadersSound/trippygaia1.mid"); // Midi sound file 
 
     add(game);
   }
 
-  public static void startMidi(String midFilename) {
+  public static void startMidi(String midFilename) { // Playing background music 
     try {
       File midiFile = new File(midFilename);
       Sequence song = MidiSystem.getSequence(midiFile);
       midiPlayer = MidiSystem.getSequencer();
-      midiPlayer.open();
-      midiPlayer.setSequence(song);
-      midiPlayer.setLoopCount(100); // repeat 0 times (play once)
-      midiPlayer.start();
+      midiPlayer.open(); // Opens file 
+      midiPlayer.setSequence(song); // Sets music in player 
+      midiPlayer.setLoopCount(100); // Repeat 0 times (play once)
+      midiPlayer.start(); // Starts playing music 
     } catch (MidiUnavailableException e) {
       e.printStackTrace();
     } catch (InvalidMidiDataException e) {
@@ -103,32 +103,33 @@ class Audio{
   static Clip clip;
   javax.sound.sampled.AudioInputStream audioInputStream;
   public Audio()
-        throws UnsupportedAudioFileException,
-        IOException, LineUnavailableException
-        {
-        // create AudioInputStream object
-        audioInputStream = AudioSystem.getAudioInputStream(new File("src/SpaceInvadersSound/bottle-open.wav").getAbsoluteFile());
+          throws UnsupportedAudioFileException,
+          IOException, LineUnavailableException
+  {
+    // create AudioInputStream object
+    audioInputStream = AudioSystem.getAudioInputStream(new File("src/SpaceInvadersSound/bottle-open.wav").getAbsoluteFile());
 
-        // create clip reference
-        clip = AudioSystem.getClip();
+    // create clip reference
+    clip = AudioSystem.getClip();
 
-        // open audioInputStream to the clip
-        clip.open(audioInputStream);
+    // open audioInputStream to the clip
+    clip.open(audioInputStream);
 
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
-        }
-        public static void main (String[]args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-          Audio audioPlayer = new Audio();
-          audioPlayer.play();
-         }
-        public void play(){
-         clip.start();
-          }
-        }
+    clip.loop(Clip.LOOP_CONTINUOUSLY);
+  }
+  public static void main (String[]args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    Audio audioPlayer = new Audio();
+    audioPlayer.play();
+  }
+  public void play(){
+    clip.start();
+  }
+}
 
 
 
 class GamePanel extends JPanel implements KeyListener{
+  // Making objects 
   private Ship ship=new Ship();
   private Bullet shipBullet=new Bullet();
   private Shield shield=new Shield();
@@ -157,10 +158,10 @@ class GamePanel extends JPanel implements KeyListener{
   }
 
   public void paintComponent(Graphics g){
-    if (onTitle){
+    if (onTitle){ // If the user is on the title screen
       onTitle = title.draw(g);
     }
-    else if (!onTitle){
+    else if (!onTitle){ // Once start game button is clicked draw the rest of the game 
       g.setColor(new Color(0,0,0));
       g.fillRect(0,0,1000,850);
       ship.draw(g);
@@ -174,20 +175,20 @@ class GamePanel extends JPanel implements KeyListener{
       enemyBullet.enemyBulletDraw(g);
       stats.draw(g);
       shipBullet.shipBulletDraw(g);
-      if (shipHit) {
+      if (shipHit) { // draw -1 when life lost 
         stats.drawLives(g);
         shipCount +=1;
-        if (shipCount == 70) {
+        if (shipCount == 70) { // -1 stays for 70 frames 
           shipHit = false;
           shipCount = 0;
         }
       }
       shipCheck();
-      enemy.gameWinner(g);
+      enemy.gameOver(g);
     }
   }
 
-  public void move(){
+  public void move(){ // Changing the ships X position based on key pressed
     if(!onTitle){
       if (keys[KeyEvent.VK_D]) {
         ship.move(3);
@@ -201,10 +202,10 @@ class GamePanel extends JPanel implements KeyListener{
       if (keys[KeyEvent.VK_LEFT]) {
         ship.move(-3);
       }
-      if (keys[KeyEvent.VK_SPACE]) {
+      if (keys[KeyEvent.VK_SPACE]) { // Shoot bullets if space pressed 
         shipBullet.shipBulletshoot(ship.position());
       }
-      enemy.move();
+      enemy.move(); // Moving enemies 
     }
   }
 
@@ -220,7 +221,7 @@ class GamePanel extends JPanel implements KeyListener{
   }
 
   public void shieldEdit(){       // Method that takes the bullets shot by the ship and checks if they are colliding with the shield
-    int bx=shipBullet.getbx();    // Gets the x and y co ordinate of the shipBullet
+    int bx=shipBullet.getbx();    // Gets the x and y coordinate of the shipBullet
     int by=shipBullet.getby();
     if(200<=bx+10 && bx+10<320){  // Checks to see if the bx and by are in the range of the first shield
       if(500<=by && by<560){
@@ -287,7 +288,7 @@ class GamePanel extends JPanel implements KeyListener{
     for(int x=0; x<11; x++){            // Loops through every value in the array starting from the bottom left all the way to the top right
       for(int y=4; y>=0; y--){
         if(enemies[y][x]!=0){                           // If there is an enemy there
-          if(randint(1,2001-enemy.bulletSpeed())==1){   // It has a 1 in 2000 chance of shooting a bullet. bulletSpeed goes up and increases bulletShoot chance when you kill al the enemies 
+          if(randint(1,2001-enemy.bulletSpeed())==1){   // It has a 1 in 2000 chance of shooting a bullet. bulletSpeed goes up and increases bulletShoot chance when you kill al the enemies
             enemyBullet.addPts(enemy.getposX().get(x));           // The x and y positions of the bullets are added
             enemyBullet.addPts(enemy.getpositionY()-((4-y)*50));
           }
@@ -300,7 +301,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public void enemyshieldEdit(){            // Changes the shield when the enemies shoot it
     ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();  // Array holds the co ordinates of the enemy bullets
     for(int i=0; i<enemyPts.size(); i+=2){  // Loops for the amount of points in the array
@@ -308,7 +309,7 @@ class GamePanel extends JPanel implements KeyListener{
       int by=enemyPts.get(i+1);
       if(700<=bx+10 && bx+10<820){          // Checks to see if the bullet is in the range of the first shield
         if(500<=by && by<560){
-          if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){ // Uses the same math as shieldEdit 
+          if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){ // Uses the same math as shieldEdit
             shield.setShield3((bx-700+10)/12,(by-500)/12);
             enemyBullet.enemyBulletreset(i,i+1);                   // Resets the enemyBullet
           }
@@ -334,11 +335,11 @@ class GamePanel extends JPanel implements KeyListener{
   }
 
   public void ufoCheck(){
-    if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
-      if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
-        enemy.ufoOffScreen();
-        stats.scoreAdd(randint(1,3)*50);
-        shipBullet.reset();
+    if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){ // Checks to see if the bullet is within the ufo's x range
+      if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){ // Checks to see if the bullet is within the ufo's y range
+        enemy.ufoOffScreen(); // Stops drawing ufo if hit 
+        stats.scoreAdd(randint(1,3)*50); // Adding score if ufo is hit 
+        shipBullet.reset(); // Resets the ships bullet after it hits the ufo
       }
     }
   }
@@ -359,29 +360,30 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public static int randint(int low, int high){   // Gets a random integer between a set range
     return (int)(Math.random()*(high-low+1)+low);
   }
-  
-  public TitleScreen getTitleScreen(){
+
+  public TitleScreen getTitleScreen(){ // Returns title object 
     return title;
   }
 }
 
 
 
-class TitleScreen implements MouseListener, MouseMotionListener{
-  private Image spacePic;
-  private Image enemyShip1;
+class TitleScreen implements MouseListener, MouseMotionListener{ // Class for the title screen
+  private Image spacePic; // Background image
+  private Image enemyShip1; // Enemy ships 
   private Image enemyShip2;
   private Image enemyShip3;
-  private Image ufoPic;
-  private boolean mousePressed;
-  private int mx;
-  private int my;
+  private Image ufoPic; // Red ufo picture 
+  private boolean mousePressed; // Checks if the mouse if pressed down
+  private int mx; // Mouse x position
+  private int my; // Mouse y position 
 
   public TitleScreen(){
+    // Getting images 
     ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();
     spacePic = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip1 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
@@ -394,13 +396,13 @@ class TitleScreen implements MouseListener, MouseMotionListener{
 
   }
 
-  public void mousePressed (MouseEvent e){
+  public void mousePressed (MouseEvent e){ // Checks if mouse is pressed down
     if (e.getButton() == MouseEvent.BUTTON1){
       mousePressed = true;
     }
   }
 
-  public void mouseReleased (MouseEvent e){
+  public void mouseReleased (MouseEvent e){ // Checks if mouse is released 
     if (e.getButton() == MouseEvent.BUTTON1){
       mousePressed = false;
     }
@@ -416,20 +418,20 @@ class TitleScreen implements MouseListener, MouseMotionListener{
 
   }
 
-  public boolean draw (Graphics g){
-    g.drawImage(spacePic, 0, 0, null);
+  public boolean draw (Graphics g){ // Drawing the title screen 
+    g.drawImage(spacePic, 0, 0, null); // Drawing background 
     Graphics2D g2d = (Graphics2D) g;
-    Font font = new Font("Consolas",Font.PLAIN,190);
+    Font font = new Font("Consolas",Font.PLAIN,190); // Initializing fonts 
     Font smallFont = new Font("Consolas",Font.PLAIN,90);
     Font superSmallFont = new Font ("Consolas",Font.PLAIN,50);
     Font verySmallFont = new Font ("Consolas",Font.PLAIN,30);
-    g2d.setFont(font);
-    g2d.setColor(Color.white);
-    g2d.drawString("SPACE",245,170);
+    g2d.setFont(font); // Setting font 
+    g2d.setColor(Color.white); // Setting Colour 
+    g2d.drawString("SPACE",245,170); // Drawing text 
     g2d.setFont(smallFont);
     g2d.setColor(Color.green);
     g2d.drawString("INVADERS",315,260);
-    g.drawImage(enemyShip1, 395, 290, null);
+    g.drawImage(enemyShip1, 395, 290, null); // Drawing first image 
     g2d.setColor(Color.white);
     g2d.setFont(verySmallFont);
     g2d.drawString("= 10 PTS",470,320);
@@ -441,14 +443,14 @@ class TitleScreen implements MouseListener, MouseMotionListener{
     g2d.drawString("= ? PTS",470,505);
     g2d.drawString("By: Kevin Cui and Adam Gaisinsky",235,720);
     g2d.setFont(superSmallFont);
-    if ((365<=mx)&&(mx<=641)&&(my<=650)&&(615<=my)){
+    if ((365<=mx)&&(mx<=641)&&(my<=650)&&(615<=my)){ // Checking if the user is hovering over the "Start Game" button
       g2d.setColor(Color.green);
       g2d.drawString("Start Game",358,620);
-      if (mousePressed == true){
+      if (mousePressed == true){ // If the user presses start game then draw the rest of the game 
         return false;
       }
     }
-    else{
+    else{ // If the user is not hovering over "Start Game"
       g2d.drawString("Start Game", 358, 620);
     }
     return true;
@@ -481,7 +483,7 @@ class Ship{                     // Class for your ship
     position = 100;
     shipPic= new ImageIcon("SpaceInvadersIMGS/spaceship.png").getImage(); // Ship image
   }
-  
+
   public void move (int x){  // Moves the ship
     position+=x;             // position is added by the parameter
     if(position<0){          // Checks to see if the ship is in range, you cannot go off the screen
@@ -491,7 +493,7 @@ class Ship{                     // Class for your ship
       position=920;
     }
   }
-  
+
   public void draw(Graphics g){              // Draws the ship at it's position, it only goes horizontally
     g.drawImage(shipPic,position,650,null);
   }
@@ -525,8 +527,8 @@ class Enemy{                     // Class for the enemies
                   {1,1,1,1,1,1,1,1,1,1,1}};
   private int bulletSpeed;                   // As bulletSpeed increases, the enemies shoot bullets more frequently
 
-  public Enemy () {                    
-    ufoCount = 0;            
+  public Enemy () {
+    ufoCount = 0;
     positionY = 370;
     ufoOnScreen = false;  // ufo dosen't start on the screen
     ufoLeft = true;
@@ -569,7 +571,7 @@ class Enemy{                     // Class for the enemies
       ufoCount = 0;
     }
   }
-  
+
   public void ufoMove(){                  // Moves the ufo
     if (ufoPosX == 0 && ufoCount != 3){
       ufoLeft = false;
@@ -646,23 +648,23 @@ class Enemy{                     // Class for the enemies
   public int[][] getenemies(){           // Gets the 2D array with enemies
     return enemies;
   }
-  
+
   public ArrayList<Integer> getposX(){   // Gets the x positions of the enemies
     return posX;
   }
-  
+
   public int getpositionY(){             // Gets the Y position
     return positionY;
   }
-  
+
   public void resetEnemies(){            // Resets the Y position
     positionY=370;
   }
-  
+
   public void setenemies(int[][]newEnemies){ // Updates the enemy array
     enemies=newEnemies;
   }
-  
+
   public int bulletSpeed(){              // Gets the current bulletSpeed
     return bulletSpeed;
   }
@@ -670,29 +672,29 @@ class Enemy{                     // Class for the enemies
   public int UFOx(){                     // Gets the x position of the ufo
     return ufoPosX;
   }
-  
+
   public int UFOy(){                     // Gets the y position of the ufo
     return ufoPosY;
   }
-  
+
   public void ufoOffScreen(){            // Puts the ufo off the screen
     ufoOnScreen=false;
   }
-  
-  public void gameWinner(Graphics g){
+
+  public void gameOver(Graphics g){ // Once lives = 0 display a "Game Over" screen
     Graphics2D g2d = (Graphics2D) g;
-    Font winFont = new Font ("Consolas",Font.PLAIN,150);
+    Font winFont = new Font ("Consolas",Font.PLAIN,150); // Initializing fonts 
     Font scoreFont = new Font ("Consolas", Font.PLAIN, 60);
-    g2d.setFont(winFont);
-    
+    g2d.setFont(winFont); // Setting fonts 
+
     if (Stats.getLives() <= 0){
-      Stats.setGameOver(true);
+      Stats.setGameOver(true); // Not letting score change anymore 
       g.drawImage(spaceBackground, 0, 0, null);
       g2d.setColor(Color.green);
       g2d.drawString("GAME OVER!", 100, 340);
       g2d.setFont(scoreFont);
       g2d.setColor(Color.white);
-      g2d.drawString("SCORE: " + Stats.getScore(),320, 450);
+      g2d.drawString("SCORE: " + Stats.getScore(),320, 450); // Displaying the final score 
     }
   }
 }
@@ -700,7 +702,7 @@ class Enemy{                     // Class for the enemies
 
 
 class Bullet{          // Class for the bullets
-  private int bx=0;    // bx and by are the x and y positions 
+  private int bx=0;    // bx and by are the x and y positions
   private int by=650;
   private ArrayList<Integer> enemyPts=new ArrayList<Integer>(); // Array for the enemy bullets co ordinates
   private Image bulletPic;       // Bullet Images
@@ -711,7 +713,7 @@ class Bullet{          // Class for the bullets
     enemyBulletPic = new ImageIcon("SpaceInvadersIMGS/Bullets/enemybullet.png").getImage(); // Images
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/shipBullet.png").getImage();
   }
-  
+
   public void shipBulletshoot(int x){  // Method that shoots the ship bullet
     if(bx==0){     // The x and y co ordinates are set based on where the ship is
       bx=x+22;
@@ -732,50 +734,50 @@ class Bullet{          // Class for the bullets
       shipShootSound=true;
     }
   }
-  
+
   public void enemyBulletDraw(Graphics g){    // Method that draws the enemies bullets
     if(enemyPts.size()>0){
       for(int i=0; i<enemyPts.size(); i+=2){  // Loops for every value in the enemyPts array
-        g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null); // Draws the enemy bullets at the 
+        g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null); // Draws the enemy bullets at the
         enemyPts.set(i+1,enemyPts.get(i+1)+8);// Adds 8 to the y position so the bullet moves
         if(enemyPts.get(i+1)>800){            // Checks to see if the enemy bullet is leaving the screen, if they are they're removed
-          enemyPts.remove(i+1);          
+          enemyPts.remove(i+1);
           enemyPts.remove(i);
           break;
         }
       }
     }
   }
-  
+
   public int getbx(){   // Gets the x position of the ship Bullet
     return bx;
   }
-  
+
   public int getby(){   // Gets the y position of the ship Bullet
     return by;
   }
-  
+
   public void reset(){  // Resets the shipBullet
     by=-1;
   }
-  
+
   public void addPts(int points){  // Takes in co ordinates and adds them to the enemyPts
     enemyPts.add(points);
   }
-  
+
   public ArrayList<Integer> getenemyPts(){     // Gets the enemy Bullet's points
     return enemyPts;
   }
-  
+
   public void enemyBulletreset(int x, int y){  // Removes the points designated in the parameters from the enemyPts
     enemyPts.remove(y);
     enemyPts.remove(x);
   }
-  
+
   public void enemyBulletClear(){  // Resets all the enemy bullets
     enemyPts.clear();
   }
-  
+
   public static boolean getShipShootSound (){
     return shipShootSound;
   }
@@ -803,10 +805,10 @@ class Shield{   // Class for the shields
                   {0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0}};
-  
+
   public Shield(){  // Empty constructor
   }
-  
+
   public void shieldDraw(Graphics g){  // Draws the shields
     g.setColor(new Color(0,255,0));
     for(int y=0; y<5; y++){
@@ -823,27 +825,27 @@ class Shield{   // Class for the shields
       }
     }
   }
-  
+
   public int[][] getShield1(){  // Gets shield 1
     return shield1;
   }
-  
+
   public int[][] getShield2(){  // Gets shield 2
     return shield2;
   }
-  
+
   public int[][] getShield3(){  // // Gets shield 3
     return shield3;
   }
-  
+
   public void setShield1(int x, int y){ // Sets shield 1
     shield1[y][x]=1;
   }
-  
+
   public void setShield2(int x, int y){  // Sets shield 2
     shield2[y][x]=1;
   }
-  
+
   public void setShield3(int x, int y){  // Sets shield 3
     shield3[y][x]=1;
   }
@@ -851,47 +853,47 @@ class Shield{   // Class for the shields
 
 
 
-class Stats {
-  private static int score;
-  private static int lives;
-  private static boolean gameOver;
-  private Image smallSpaceshipPic;
+class Stats { // Class for the stats 
+  private static int score; // Total score accumulated 
+  private static int lives; // Number of lives remaining 
+  private static boolean gameOver; // If all lives have been lost 
+  private Image smallSpaceshipPic; // Picture used for lives 
 
-  public Stats (){
-    score = 0;
-    lives = 3;
-    gameOver = false;
-    smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage();
+  public Stats (){ // Constructor method 
+    score = 0; // Starting score at 0
+    lives = 3; // Giving the user 3 lives 
+    gameOver = false; // Starting game over as false 
+    smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage(); // Loading spaceship image
   }
-  public void draw (Graphics g){
+  public void draw (Graphics g){ // Drawing the "Game Over" screen 
     Graphics2D g2d = (Graphics2D) g;
-    Font font = new Font("Consolas",Font.PLAIN,32);
-    g2d.setFont(font);
-    g2d.setColor(Color.white);
-    g2d.drawString("SCORE:",100,50);
+    Font font = new Font("Consolas",Font.PLAIN,32); // Initializing font
+    g2d.setFont(font); // Setting font 
+    g2d.setColor(Color.white); // Setting colour 
+    g2d.drawString("SCORE:",100,50); 
     g2d.setColor(Color.green);
-    g2d.drawString(Integer.toString(score),220,50);
+    g2d.drawString(Integer.toString(score),220,50); // Drawing the user's score 
     g2d.setColor(Color.white);
-    g2d.drawString("LIVES", 600,50);
+    g2d.drawString("LIVES", 600,50); 
     for(int i=0; i<lives; i++){
-      g.drawImage(smallSpaceshipPic,730+(i*70),20,null);
+      g.drawImage(smallSpaceshipPic,730+(i*70),20,null); // Drawing a spaceship for each life that the user has remaining 
     }
   }
-  public void drawLives (Graphics g){
+  public void drawLives (Graphics g){ // Method for when the user loses a life 
     Graphics2D g2d = (Graphics2D) g;
     Font font = new Font("Consolas",Font.PLAIN,40);
     g2d.setFont(font);
     g2d.setColor(Color.red);
-    g2d.drawString("-1", Ship.position()+20 ,630);
+    g2d.drawString("-1", Ship.position()+20 ,630); // Drawing a red -1 to indicate a life lost 
 
   }
-  public void scoreAdd(int points){
-    if (!gameOver) {
+  public void scoreAdd(int points){ // Adding to the user's score 
+    if (!gameOver) { // Only add to score if not on the "Game Over" screen
       score += points;
     }
   }
-  public static int getScore(){return score;}
-  public static int getLives() {return lives;}
-  public static void setLives(){lives-=1;}
-  public static void setGameOver(boolean setGameOver){gameOver = setGameOver;}
+  public static int getScore(){return score;} // Returns the user's score
+  public static int getLives() {return lives;} // Returns how many lives the user has left 
+  public static void setLives(){lives-=1;} // Subtracting a life when the user if hit by an enemy
+  public static void setGameOver(boolean setGameOver){gameOver = setGameOver;} // Setting gaameOver to true once all lives are lost 
 }
