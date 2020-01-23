@@ -77,27 +77,32 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
   }
 }
 
-/*
-class Sound extends JFrame implements ActionListener
-{
-  File wavFile = new File("bottle-open.wav");
-  static AudioClip sound;
-  public Sound()
-  {
-    try{sound = Applet.newAudioClip(wavFile.toURL());}
+class Sound{  // Class for sound effects
+  File wavFile1 = new File("shipBulletSound.wav"); // File names
+  File wavFile2 = new File("enemyBulletSound.wav");
+  File wavFile3 = new File("explosion.wav");
+  static AudioClip sound1;                         // Makes an audio clip with the sound
+  static AudioClip sound2;
+  static AudioClip sound3;
+  public Sound(){
+    try{sound1 = Applet.newAudioClip(wavFile1.toURL());} // Gets the sound and path
+    catch(Exception e){e.printStackTrace();}
+    try{sound2 = Applet.newAudioClip(wavFile2.toURL());}
+    catch(Exception e){e.printStackTrace();}
+    try{sound3 = Applet.newAudioClip(wavFile3.toURL());}
     catch(Exception e){e.printStackTrace();}
   }
-  @Override
-  public void actionPerformed(ActionEvent ae){sound.play();}
 
-  public static void play(){
-    System.out.println(Bullet.getShipShootSound());
-    if (Bullet.getShipShootSound() == true){
-      sound.play();
-    }
+  public static void shipBulletplay(){   // Plays the shipBullet sound
+    sound1.play();
+  }
+  public static void enemyBulletplay(){  // Plays the enemyBullet sound    
+    sound2.play();
+  }
+  public static void explosionplay(){   // Plays the explosion sound
+    sound3.play();
   }
 }
- */
 
 class Audio{
   static Clip clip;
@@ -136,6 +141,7 @@ class GamePanel extends JPanel implements KeyListener{
   private Enemy enemy = new Enemy();
   private Bullet enemyBullet=new Bullet();
   private Stats stats = new Stats();
+  private Sound sound = new Sound();
   private TitleScreen title = new TitleScreen();
   private boolean [] keys;
   private boolean onTitle;
@@ -263,6 +269,7 @@ class GamePanel extends JPanel implements KeyListener{
           if(enemies[y][x]!=0){                               // If there is an enemy at the index
             if(posX.get(x)<bx && bx<posX.get(x)+50){          // and the x and y positions of the bullet are in the range of the enemy at the index (collision)
               if(posY-250+(y*50)<by && by<posY-200+(y*50)){
+                sound.explosionplay(); // Play the explosion sound
                 shipBullet.reset();    // The shipBullet is reset
                 if(enemies[y][x]==1){  // If the enemy is type 1, you get 10 points
                   stats.scoreAdd(10);
@@ -289,6 +296,7 @@ class GamePanel extends JPanel implements KeyListener{
       for(int y=4; y>=0; y--){
         if(enemies[y][x]!=0){                           // If there is an enemy there
           if(randint(1,2001-enemy.bulletSpeed())==1){   // It has a 1 in 2000 chance of shooting a bullet. bulletSpeed goes up and increases bulletShoot chance when you kill al the enemies
+            sound.enemyBulletplay();                    // Sound effect is played
             enemyBullet.addPts(enemy.getposX().get(x));           // The x and y positions of the bullets are added
             enemyBullet.addPts(enemy.getpositionY()-((4-y)*50));
           }
@@ -337,9 +345,10 @@ class GamePanel extends JPanel implements KeyListener{
   public void ufoCheck(){
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){ // Checks to see if the bullet is within the ufo's x range
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){ // Checks to see if the bullet is within the ufo's y range
-        enemy.ufoOffScreen(); // Stops drawing ufo if hit 
+        sound.explosionplay();   // Plays the explosion sound
+        enemy.ufoOffScreen();    // Stops drawing ufo if hit 
         stats.scoreAdd(randint(1,3)*50); // Adding score if ufo is hit 
-        shipBullet.reset(); // Resets the ships bullet after it hits the ufo
+        shipBullet.reset();      // Resets the ships bullet after it hits the ufo
       }
     }
   }
@@ -532,7 +541,7 @@ class Enemy{                     // Class for the enemies
     positionY = 370;
     ufoOnScreen = false;  // ufo dosen't start on the screen
     ufoLeft = true;
-    ufoPosX = 924;
+    ufoPosX = 984;
     ufoPosY = 80;
     for (int i = 50; i<600 ;i+=50) { // Adds 10 x positions to the posX list for the rows of enemies
       posX.add(i);
@@ -567,7 +576,7 @@ class Enemy{                     // Class for the enemies
 
     if ((ufoCount == 3 && ufoPosX<-50) | ufoOnScreen==false) { // Resets ufo variables
       ufoOnScreen = false;
-      ufoPosX = 924;
+      ufoPosX = 984;
       ufoCount = 0;
     }
   }
@@ -707,7 +716,7 @@ class Bullet{          // Class for the bullets
   private ArrayList<Integer> enemyPts=new ArrayList<Integer>(); // Array for the enemy bullets co ordinates
   private Image bulletPic;       // Bullet Images
   private Image enemyBulletPic;
-  private static boolean shipShootSound=false;
+  private Sound sound=new Sound(); // Makes a sound object
 
   public Bullet(){
     enemyBulletPic = new ImageIcon("SpaceInvadersIMGS/Bullets/enemybullet.png").getImage(); // Images
@@ -719,6 +728,7 @@ class Bullet{          // Class for the bullets
       bx=x+22;
     }
     if(by==650){
+      sound.shipBulletplay();  // Plays a sound effect
       by-=10;
     }
   }
@@ -731,7 +741,6 @@ class Bullet{          // Class for the bullets
     if(by<650){   // The bullet moves down the screen by 10 pixels at a time
       by-=10;
       g.drawImage(bulletPic,bx,by,null); // Draws the bullet
-      shipShootSound=true;
     }
   }
 
@@ -776,10 +785,6 @@ class Bullet{          // Class for the bullets
 
   public void enemyBulletClear(){  // Resets all the enemy bullets
     enemyPts.clear();
-  }
-
-  public static boolean getShipShootSound (){
-    return shipShootSound;
   }
 }
 
