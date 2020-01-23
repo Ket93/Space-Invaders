@@ -32,7 +32,6 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
     startMidi("SpaceInvadersSound/trippygaia1.mid");
 
     add(game);
-
   }
 
   public static void startMidi(String midFilename) {
@@ -43,7 +42,7 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
       midiPlayer.open();
       midiPlayer.setSequence(song);
       midiPlayer.setLoopCount(100); // repeat 0 times (play once)
-     // midiPlayer.start();
+      midiPlayer.start();
     } catch (MidiUnavailableException e) {
       e.printStackTrace();
     } catch (InvalidMidiDataException e) {
@@ -129,9 +128,6 @@ class Audio{
 
 
 
-
-
-
 class GamePanel extends JPanel implements KeyListener{
   private Ship ship=new Ship();
   private Bullet shipBullet=new Bullet();
@@ -189,10 +185,6 @@ class GamePanel extends JPanel implements KeyListener{
       shipCheck();
       enemy.gameWinner(g);
     }
-  }
-
-  public TitleScreen getTitleScreen(){
-    return title;
   }
 
   public void move(){
@@ -267,20 +259,20 @@ class GamePanel extends JPanel implements KeyListener{
     if(posY-250<by && by<posY && posX.get(0)<bx && bx<posX.get(posX.size()-1)+50){ // If the shipBullet is in the range of connecting with an enemy
       for(int y=0; y<5; y++){                                 // Loops for every value in the enemy array (55 indexes)
         for(int x=0; x<11; x++){
-          if(enemies[y][x]!=0){
-            if(posX.get(x)<bx && bx<posX.get(x)+50){
+          if(enemies[y][x]!=0){                               // If there is an enemy at the index
+            if(posX.get(x)<bx && bx<posX.get(x)+50){          // and the x and y positions of the bullet are in the range of the enemy at the index (collision)
               if(posY-250+(y*50)<by && by<posY-200+(y*50)){
-                shipBullet.reset();
-                if(enemies[y][x]==1){
+                shipBullet.reset();    // The shipBullet is reset
+                if(enemies[y][x]==1){  // If the enemy is type 1, you get 10 points
                   stats.scoreAdd(10);
                 }
-                else if(enemies[y][x]==2){
+                else if(enemies[y][x]==2){ // If the enemy is type 2, you et 20 points
                   stats.scoreAdd(20);
                 }
-                else if(enemies[y][x]==3){
+                else if(enemies[y][x]==3){ // If the enemy is type 43 you get 40 points
                   stats.scoreAdd(40);
                 }
-                enemies[y][x]=0;
+                enemies[y][x]=0;           // The bullet destroys the enemy and the original array is changed to not have an enemy where it was destroyed
                 enemy.setenemies(enemies);
               }
             }
@@ -290,39 +282,39 @@ class GamePanel extends JPanel implements KeyListener{
     }
   }
 
-  public void enemyShoot(){
-    int[][]enemies=enemy.getenemies();
-    for(int x=0; x<11; x++){
+  public void enemyShoot(){             // Initiates random enemies shooting bullets at you
+    int[][]enemies=enemy.getenemies();  // Makes an array with the enemies in it
+    for(int x=0; x<11; x++){            // Loops through every value in the array starting from the bottom left all the way to the top right
       for(int y=4; y>=0; y--){
-        if(enemies[y][x]!=0){
-          if(randint(1,2000-enemy.bulletSpeed())==1){
-            enemyBullet.addPts(enemy.getposX().get(x));
+        if(enemies[y][x]!=0){                           // If there is an enemy there
+          if(randint(1,2001-enemy.bulletSpeed())==1){   // It has a 1 in 2000 chance of shooting a bullet. bulletSpeed goes up and increases bulletShoot chance when you kill al the enemies 
+            enemyBullet.addPts(enemy.getposX().get(x));           // The x and y positions of the bullets are added
             enemyBullet.addPts(enemy.getpositionY()-((4-y)*50));
           }
-          y=4;
+          y=4;           // The indexes are reset so that it starts checking the next row over at the bottom, only the bottom most enemy can shoot
           x+=1;
-          if(x>=11){
+          if(x>=11){     // Breaks if the x is too big
             break;
           }
         }
       }
     }
   }
-
-  public void enemyshieldEdit(){
-    ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();
-    for(int i=0; i<enemyPts.size(); i+=2){
-      int bx=enemyPts.get(i);
+  
+  public void enemyshieldEdit(){            // Changes the shield when the enemies shoot it
+    ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();  // Array holds the co ordinates of the enemy bullets
+    for(int i=0; i<enemyPts.size(); i+=2){  // Loops for the amount of points in the array
+      int bx=enemyPts.get(i);               // The x and y positions of the bullet are retrieved
       int by=enemyPts.get(i+1);
-      if(700<=bx+10 && bx+10<820){
+      if(700<=bx+10 && bx+10<820){          // Checks to see if the bullet is in the range of the first shield
         if(500<=by && by<560){
-          if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){
+          if(shield.getShield3()[(by-500)/12][(bx-700+10)/12]==0){ // Uses the same math as shieldEdit 
             shield.setShield3((bx-700+10)/12,(by-500)/12);
-            enemyBullet.enemyBulletreset(i,i+1);
+            enemyBullet.enemyBulletreset(i,i+1);                   // Resets the enemyBullet
           }
         }
       }
-      else if(450<=bx+10 && bx+10<570){
+      else if(450<=bx+10 && bx+10<570){                            // Same as Shield 1 except for the second shield
         if(500<=by && by<560){
           if(shield.getShield2()[(by-500)/12][(bx-450+10)/12]==0){
             shield.setShield2((bx-450+10)/12,(by-500)/12);
@@ -330,7 +322,7 @@ class GamePanel extends JPanel implements KeyListener{
           }
         }
       }
-      else if(200<=bx+10 && bx+10<320){
+      else if(200<=bx+10 && bx+10<320){                            // Thrid shield check
         if(500<=by && by<560){
           if(shield.getShield1()[(by-500)/12][(bx-200+10)/12]==0){
             shield.setShield1((bx-200+10)/12,(by-500)/12);
@@ -351,15 +343,15 @@ class GamePanel extends JPanel implements KeyListener{
     }
   }
 
-  public void shipCheck(){
-    ArrayList<Integer> enemyPts=enemyBullet.getenemyPts();
+  public void shipCheck(){                                       // Checks to see if the enemy bullets hit your ship
+    ArrayList<Integer> enemyPts=enemyBullet.getenemyPts();       // Array gets all the enemy bullet locations
     if(enemyPts.size()>0){
-      for(int i=0; i<enemyPts.size(); i+=2){
+      for(int i=0; i<enemyPts.size(); i+=2){                     // Loops for all the enemy bullet points
         if(enemyPts.get(i+1)>=650 && enemyPts.get(i+1)<=720){
-          if(ship.position()<=enemyPts.get(i) && enemyPts.get(i)<=ship.position()+60) {
-            stats.setLives();
-            enemyBullet.enemyBulletClear();
-            enemy.resetEnemies();
+          if(ship.position()<=enemyPts.get(i) && enemyPts.get(i)<=ship.position()+60) { // Checks if the enemy bullet collides with your ship
+            stats.setLives();                // Subtracts 1 life from your lives
+            enemyBullet.enemyBulletClear();  // Resets all the enemy Bullets
+            enemy.resetEnemies();            // Resets all the enemies
             shipHit = true;
             break;
           }
@@ -367,9 +359,13 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-
-  public static int randint(int low, int high){
+  
+  public static int randint(int low, int high){   // Gets a random integer between a set range
     return (int)(Math.random()*(high-low+1)+low);
+  }
+  
+  public TitleScreen getTitleScreen(){
+    return title;
   }
 }
 
@@ -473,72 +469,73 @@ class TitleScreen implements MouseListener, MouseMotionListener{
 
 
 
-class Ship{
-  private int lives;
-  private int score;
-  private static int position;
-  private Image shipPic;
+class Ship{                     // Class for your ship
+  private int lives;            // Lives stores how many lives you have left
+  private int score;            // Score stores your current score
+  private static int position;  // Position stores your position
+  private Image shipPic;        // shipPic is the image of the ship
 
   public Ship(){
-    lives = 3;
+    lives = 3;        // You start at three lives with no score 100 pixels away from the left
     score  = 0;
     position = 100;
-    shipPic= new ImageIcon("SpaceInvadersIMGS/spaceship.png").getImage();
+    shipPic= new ImageIcon("SpaceInvadersIMGS/spaceship.png").getImage(); // Ship image
   }
-  public void move (int x){
-    position+=x;
-    if(position<0){
+  
+  public void move (int x){  // Moves the ship
+    position+=x;             // position is added by the parameter
+    if(position<0){          // Checks to see if the ship is in range, you cannot go off the screen
       position=0;
     }
     else if(position>920){
       position=920;
     }
   }
-  public void draw(Graphics g){
+  
+  public void draw(Graphics g){              // Draws the ship at it's position, it only goes horizontally
     g.drawImage(shipPic,position,650,null);
   }
 
-  public static int position(){
+  public static int position(){              // Returns the ship's position
     return position;
   }
 }
 
 
 
-
-class Enemy{
-  private int positionY;
-  private boolean left = false;
-  private Image enemyShip;
+class Enemy{                     // Class for the enemies
+  private int positionY;         // The y position of the bottom most enemy
+  private boolean left = false;  // Boolean for the direction
+  private Image enemyShip;       // Three enemy images for the pics
   private Image enemyShip2;
   private Image enemyShip3;
-  private Image spaceBackground;
-  private Image ufoPic;
-  private boolean ufoOnScreen;
-  private int ufoPosX;
+  private Image spaceBackground; // Background image
+  private Image ufoPic;          // ufo image
+  private boolean ufoOnScreen;   // Boolean it see if the ufo is on the screen
+  private int ufoPosX;           // X and Y position of the ufo
   private int ufoPosY;
-  private boolean ufoLeft;
+  private boolean ufoLeft;       // Variables to control ufo movement
   private int ufoCount;
-  private ArrayList<Integer> posX = new ArrayList<Integer>();
-  private int[][]enemies=
+  private ArrayList<Integer> posX = new ArrayList<Integer>(); // Keeps the x position of the enemy
+  private int[][]enemies=                    // Array for the enemies. Each value represents a different image and a different enemy
           {{3,3,3,3,3,3,3,3,3,3,3},
                   {2,2,2,2,2,2,2,2,2,2,2},
                   {2,2,2,2,2,2,2,2,2,2,2},
                   {1,1,1,1,1,1,1,1,1,1,1},
                   {1,1,1,1,1,1,1,1,1,1,1}};
-  private int bulletSpeed;
+  private int bulletSpeed;                   // As bulletSpeed increases, the enemies shoot bullets more frequently
 
-  public Enemy () {
-    ufoCount = 0;
+  public Enemy () {                    
+    ufoCount = 0;            
     positionY = 370;
-    ufoOnScreen = false;
+    ufoOnScreen = false;  // ufo dosen't start on the screen
     ufoLeft = true;
     ufoPosX = 924;
     ufoPosY = 80;
-    for (int i = 50; i<600 ;i+=50) {
+    for (int i = 50; i<600 ;i+=50) { // Adds 10 x positions to the posX list for the rows of enemies
       posX.add(i);
     }
-    ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();
+    ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();                        // Images
     spaceBackground = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip2 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy.jpg").getImage();
     enemyShip = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
@@ -546,8 +543,8 @@ class Enemy{
     bulletSpeed=0;
   }
 
-  public void draw (Graphics g) {
-    for (int y = 0; y < 5; y++) {
+  public void draw (Graphics g) {       // Draws the enemies
+    for (int y = 0; y < 5; y++) {       // For every enemy, depending on it's value, it will draw its respective image
       for (int x = 0; x < 11; x++) {
         if (enemies[y][x] == 3) {
           g.drawImage(enemyShip3, posX.get(0) + (x * 50), positionY - 250 + (y * 50), null);
@@ -558,22 +555,22 @@ class Enemy{
         }
       }
     }
-    if ((GamePanel.randint(0, 1000) == 1) && ufoOnScreen == false) {
+    if ((GamePanel.randint(0, 1000) == 1) && ufoOnScreen == false) {  // 1/1000 times the ufo will go on the screen unless it's already there
       ufoOnScreen = true;
     }
-    if (ufoOnScreen == true) {
+    if (ufoOnScreen == true) {                      // If the ufo is on the screen, it's drawn and then moved
       g.drawImage(ufoPic, ufoPosX, ufoPosY, null);
       ufoMove();
     }
 
-    if ((ufoCount == 3 && ufoPosX<-50) | ufoOnScreen==false) {
+    if ((ufoCount == 3 && ufoPosX<-50) | ufoOnScreen==false) { // Resets ufo variables
       ufoOnScreen = false;
       ufoPosX = 924;
       ufoCount = 0;
-
     }
   }
-  public void ufoMove(){
+  
+  public void ufoMove(){                  // Moves the ufo
     if (ufoPosX == 0 && ufoCount != 3){
       ufoLeft = false;
       ufoCount +=1;
@@ -588,30 +585,29 @@ class Enemy{
     if (ufoLeft == false){
       ufoPosX += 3;
     }
-
   }
 
-  public void move (){
-    int edgePos=-1;
-    if(left){
-      for(int x=0; x<11; x++){
+  public void move (){                  // Moves the enemies
+    int edgePos=-1;                     // edgePos is a variable that checks the enemies at the left and right most sides. If there are no enemies, the value will be -1 (resets enemies)
+    if(left){                           // If you are going left
+      for(int x=0; x<11; x++){          // every index in the array is checked for an enemy starting from the left side
         for(int y=0; y<5; y++){
-          if(enemies[y][x]!=0){
+          if(enemies[y][x]!=0){         // If there is an enemy, that index is the edge of your enemies
             edgePos=x;
-            if (posX.get(edgePos)==0){
+            if (posX.get(edgePos)==0){  // If the edge of your enemies is at the edge of the screen, the enemies move down by 20 pixels. The direction is changed
               left = false;
               positionY+=20;
             }
-            x=99;
+            x=99;  //Breaks out of both for loops
             y=99;
           }
         }
       }
     }
-    else if(!left){
-      for(int x=10; x>=0; x--){
+    else if(!left){                     // If you are going right
+      for(int x=10; x>=0; x--){         // Loops from the right side to the left side
         for(int y=0; y<5; y++){
-          if(enemies[y][x]!=0){
+          if(enemies[y][x]!=0){         // Checks for an enemy and than checks if it is at the rightmost part of the screen
             edgePos=x;
             if (posX.get(edgePos)==930){
               left = true;
@@ -623,55 +619,72 @@ class Enemy{
         }
       }
     }
-    for (int i = 0; i<11; i++){
+    for (int i = 0; i<11; i++){     // If you are going left, all the enemy co ordinates decrease by 1
       if (left){
         posX.set(i,posX.get(i)-1);
       }
-      else if (!left){
+      else if (!left){              // If you are going right, all the enemy co ordinates increase by 1
         posX.set(i,posX.get(i)+1);
       }
     }
-    if(edgePos==-1){
-      for (int y = 4; y >= 0; y--) {
+    if(edgePos==-1){                     // If there are no enemies on the screen, the enemies reset
+      for (int y = 4; y >= 0; y--) {     // Starts from the bottom row and goes up
         for (int x = 0; x < 11; x++) {
-          enemies[4-y][x]=(y+2)/2;
+          enemies[4-y][x]=(y+2)/2;       // 4-y gives you the opposite value (higher number means on the top), y+2/2 will give you | 1 | 2 | 3 | based on the y value. Draws the threes on top, then twos, then ones.
         }
       }
-      positionY=370;
+      positionY=370;                     // Reseting the x and y positions of the enemies
       posX.clear();
       for (int i = 50; i<600 ;i+=50) {
         posX.add(i);
       }
-      bulletSpeed+=200;
+      bulletSpeed+=200;  // Bullet speed increases so enemeis shoot more frequently
       edgePos=0;
     }
   }
 
-  public int[][] getenemies(){
+  public int[][] getenemies(){           // Gets the 2D array with enemies
     return enemies;
   }
-  public ArrayList<Integer> getposX(){
+  
+  public ArrayList<Integer> getposX(){   // Gets the x positions of the enemies
     return posX;
   }
-  public int getpositionY(){
+  
+  public int getpositionY(){             // Gets the Y position
     return positionY;
   }
-  public void resetEnemies(){
+  
+  public void resetEnemies(){            // Resets the Y position
     positionY=370;
   }
-  public void setenemies(int[][]newEnemies){
+  
+  public void setenemies(int[][]newEnemies){ // Updates the enemy array
     enemies=newEnemies;
   }
-  public int bulletSpeed(){
+  
+  public int bulletSpeed(){              // Gets the current bulletSpeed
     return bulletSpeed;
   }
 
+  public int UFOx(){                     // Gets the x position of the ufo
+    return ufoPosX;
+  }
+  
+  public int UFOy(){                     // Gets the y position of the ufo
+    return ufoPosY;
+  }
+  
+  public void ufoOffScreen(){            // Puts the ufo off the screen
+    ufoOnScreen=false;
+  }
+  
   public void gameWinner(Graphics g){
     Graphics2D g2d = (Graphics2D) g;
     Font winFont = new Font ("Consolas",Font.PLAIN,150);
     Font scoreFont = new Font ("Consolas", Font.PLAIN, 60);
     g2d.setFont(winFont);
-
+    
     if (Stats.getLives() <= 0){
       Stats.setGameOver(true);
       g.drawImage(spaceBackground, 0, 0, null);
@@ -682,34 +695,25 @@ class Enemy{
       g2d.drawString("SCORE: " + Stats.getScore(),320, 450);
     }
   }
-  public int UFOx(){
-    return ufoPosX;
-  }
-  public int UFOy(){
-    return ufoPosY;
-  }
-  public void ufoOffScreen(){
-    ufoOnScreen=false;
-  }
 }
 
 
 
-
-class Bullet{
-  private int bx=0;
+class Bullet{          // Class for the bullets
+  private int bx=0;    // bx and by are the x and y positions 
   private int by=650;
-  private ArrayList<Integer> enemyPts=new ArrayList<Integer>();
-  private Image bulletPic;
-  private static boolean shipShootSound = false;
+  private ArrayList<Integer> enemyPts=new ArrayList<Integer>(); // Array for the enemy bullets co ordinates
+  private Image bulletPic;       // Bullet Images
   private Image enemyBulletPic;
+  private static boolean shipShootSound=false;
 
   public Bullet(){
-    enemyBulletPic = new ImageIcon("SpaceInvadersIMGS/Bullets/enemybullet.png").getImage();
+    enemyBulletPic = new ImageIcon("SpaceInvadersIMGS/Bullets/enemybullet.png").getImage(); // Images
     bulletPic=new ImageIcon("SpaceInvadersIMGS/Bullets/shipBullet.png").getImage();
   }
-  public void shipBulletshoot(int x){
-    if(bx==0){
+  
+  public void shipBulletshoot(int x){  // Method that shoots the ship bullet
+    if(bx==0){     // The x and y co ordinates are set based on where the ship is
       bx=x+22;
     }
     if(by==650){
@@ -717,52 +721,61 @@ class Bullet{
     }
   }
 
-  public void shipBulletDraw(Graphics g){
-    if(by<=0){
+  public void shipBulletDraw(Graphics g){  // Method that draws the bullet shot by the ship
+    if(by<=0){    // If the by goes off the screen from the top, the x and y are reset and the bullet goes away
       by=650;
       bx=0;
     }
-    if(by<650){
+    if(by<650){   // The bullet moves down the screen by 10 pixels at a time
       by-=10;
-      g.drawImage(bulletPic,bx,by,null);
-      shipShootSound = true;
+      g.drawImage(bulletPic,bx,by,null); // Draws the bullet
+      shipShootSound=true;
     }
   }
-  public void enemyBulletDraw(Graphics g){
+  
+  public void enemyBulletDraw(Graphics g){    // Method that draws the enemies bullets
     if(enemyPts.size()>0){
-      for(int i=0; i<enemyPts.size(); i+=2){
-        g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null);
-        enemyPts.set(i+1,enemyPts.get(i+1)+8);
-        if(enemyPts.get(i+1)>800){
-          enemyPts.remove(i+1);
+      for(int i=0; i<enemyPts.size(); i+=2){  // Loops for every value in the enemyPts array
+        g.drawImage(enemyBulletPic,enemyPts.get(i),enemyPts.get(i+1),null); // Draws the enemy bullets at the 
+        enemyPts.set(i+1,enemyPts.get(i+1)+8);// Adds 8 to the y position so the bullet moves
+        if(enemyPts.get(i+1)>800){            // Checks to see if the enemy bullet is leaving the screen, if they are they're removed
+          enemyPts.remove(i+1);          
           enemyPts.remove(i);
           break;
         }
       }
     }
   }
-  public int getbx(){
+  
+  public int getbx(){   // Gets the x position of the ship Bullet
     return bx;
   }
-  public int getby(){
+  
+  public int getby(){   // Gets the y position of the ship Bullet
     return by;
   }
-  public void reset(){
+  
+  public void reset(){  // Resets the shipBullet
     by=-1;
   }
-  public void addPts(int points){
+  
+  public void addPts(int points){  // Takes in co ordinates and adds them to the enemyPts
     enemyPts.add(points);
   }
-  public ArrayList<Integer> getenemyPts(){
+  
+  public ArrayList<Integer> getenemyPts(){     // Gets the enemy Bullet's points
     return enemyPts;
   }
-  public void enemyBulletreset(int x, int y){
+  
+  public void enemyBulletreset(int x, int y){  // Removes the points designated in the parameters from the enemyPts
     enemyPts.remove(y);
     enemyPts.remove(x);
   }
-  public void enemyBulletClear(){
+  
+  public void enemyBulletClear(){  // Resets all the enemy bullets
     enemyPts.clear();
   }
+  
   public static boolean getShipShootSound (){
     return shipShootSound;
   }
@@ -770,9 +783,8 @@ class Bullet{
 
 
 
-
-class Shield{
-  private int[][]shield1=
+class Shield{   // Class for the shields
+  private int[][]shield1=                  // Three 2D arrays store the values for shields. Each index represent a 12 x 12 pixel square. 0 means it's filled, 1 means it's been destryoed
           {{0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0},
@@ -791,12 +803,14 @@ class Shield{
                   {0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0},
                   {0,0,0,0,0,0,0,0,0,0}};
-  public Shield(){
+  
+  public Shield(){  // Empty constructor
   }
-  public void shieldDraw(Graphics g){
+  
+  public void shieldDraw(Graphics g){  // Draws the shields
     g.setColor(new Color(0,255,0));
     for(int y=0; y<5; y++){
-      for(int x=0; x<10; x++){
+      for(int x=0; x<10; x++){ // For every value in the shields, if the value is 0, a green 12 x 12 rect is drawn
         if(shield1[y][x]==0){
           g.fillRect(200+(x*12),500+(y*12),12,12);
         }
@@ -806,40 +820,34 @@ class Shield{
         if(shield3[y][x]==0){
           g.fillRect(700+(x*12),500+(y*12),12,12);
         }
-        g.setColor(new Color(0,0,0));
-        if(shield1[y][x]==1){
-          g.fillRect(200+(x*12),500+(y*12),12,12);
-        }
-        if(shield2[y][x]==1){
-          g.fillRect(450+(x*12),500+(y*12),12,12);
-        }
-        if(shield3[y][x]==1){
-          g.fillRect(700+(x*12),500+(y*12),12,12);
-        }
-        g.setColor(new Color(0,255,0));
       }
     }
   }
-  public int[][] getShield1(){
+  
+  public int[][] getShield1(){  // Gets shield 1
     return shield1;
   }
-  public int[][] getShield2(){
+  
+  public int[][] getShield2(){  // Gets shield 2
     return shield2;
   }
-  public int[][] getShield3(){
+  
+  public int[][] getShield3(){  // // Gets shield 3
     return shield3;
   }
-  public void setShield1(int x, int y){
+  
+  public void setShield1(int x, int y){ // Sets shield 1
     shield1[y][x]=1;
   }
-  public void setShield2(int x, int y){
+  
+  public void setShield2(int x, int y){  // Sets shield 2
     shield2[y][x]=1;
   }
-  public void setShield3(int x, int y){
+  
+  public void setShield3(int x, int y){  // Sets shield 3
     shield3[y][x]=1;
   }
 }
-
 
 
 
