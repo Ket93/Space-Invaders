@@ -2,12 +2,16 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.Timer;
-import java.awt.MouseInfo;
+import java.io.*;
+import javax.sound.midi.*;
 import java.util.*;
+import java.applet.*;
+import javax.sound.sampled.*;
 
 public class SpaceInvaders extends JFrame implements ActionListener, KeyListener {
   Timer myTimer;
   GamePanel game = new GamePanel();
+  public static Sequencer midiPlayer;
 
   public SpaceInvaders (){
     super ("Space Invaders");
@@ -25,15 +29,33 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
     addKeyListener(this);
     addMouseListener(game.getTitleScreen());
     addMouseMotionListener(game.getTitleScreen());
+    startMidi("SpaceInvadersSound/trippygaia1.mid");
 
     add(game);
 
   }
 
-  public void actionPerformed(ActionEvent evt){
-      game.move();
-      game.repaint();
+  public static void startMidi(String midFilename) {
+    try {
+      File midiFile = new File(midFilename);
+      Sequence song = MidiSystem.getSequence(midiFile);
+      midiPlayer = MidiSystem.getSequencer();
+      midiPlayer.open();
+      midiPlayer.setSequence(song);
+      midiPlayer.setLoopCount(100); // repeat 0 times (play once)
+     // midiPlayer.start();
+    } catch (MidiUnavailableException e) {
+      e.printStackTrace();
+    } catch (InvalidMidiDataException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
+  public void actionPerformed(ActionEvent evt){
+    game.move();
+    game.repaint();
   }
 
   public static void main (String [] args){
@@ -55,6 +77,57 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
 
   }
 }
+
+/*
+class Sound extends JFrame implements ActionListener
+{
+  File wavFile = new File("bottle-open.wav");
+  static AudioClip sound;
+  public Sound()
+  {
+    try{sound = Applet.newAudioClip(wavFile.toURL());}
+    catch(Exception e){e.printStackTrace();}
+  }
+  @Override
+  public void actionPerformed(ActionEvent ae){sound.play();}
+
+  public static void play(){
+    System.out.println(Bullet.getShipShootSound());
+    if (Bullet.getShipShootSound() == true){
+      sound.play();
+    }
+  }
+}
+ */
+
+class Audio{
+  static Clip clip;
+  javax.sound.sampled.AudioInputStream audioInputStream;
+  public Audio()
+        throws UnsupportedAudioFileException,
+        IOException, LineUnavailableException
+        {
+        // create AudioInputStream object
+        audioInputStream = AudioSystem.getAudioInputStream(new File("src/SpaceInvadersSound/bottle-open.wav").getAbsoluteFile());
+
+        // create clip reference
+        clip = AudioSystem.getClip();
+
+        // open audioInputStream to the clip
+        clip.open(audioInputStream);
+
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
+        public static void main (String[]args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+          Audio audioPlayer = new Audio();
+          audioPlayer.play();
+         }
+        public void play(){
+         clip.start();
+          }
+        }
+
+
 
 
 
@@ -152,16 +225,16 @@ class GamePanel extends JPanel implements KeyListener{
 
   public void keyReleased(KeyEvent keyEvent) {
     keys[keyEvent.getKeyCode()] = false;
-  } 
-  
+  }
+
   public void shieldEdit(){       // Method that takes the bullets shot by the ship and checks if they are colliding with the shield
-    int bx=shipBullet.getbx();    // Gets the x and y co ordinate of the shipBullet 
+    int bx=shipBullet.getbx();    // Gets the x and y co ordinate of the shipBullet
     int by=shipBullet.getby();
     if(200<=bx+10 && bx+10<320){  // Checks to see if the bx and by are in the range of the first shield
       if(500<=by && by<560){
         if(shield.getShield1()[(by-500)/12][(bx-200+10)/12]==0){  // If the bullet is hitting the shield, the shield is checked to see if there is actually shield there or if it has already been destroyed.
-// The by-500 subtracts off the y value of the shield leaving numbers from 0-60. When divided by 12, you get an index which correspons to a spot in the shield array. 
-// The distance away from the edge is subtracted from the x value to leave values from 0,120. This is divided by 12 which corresponds to a spot in the shield array. With x and y, you get an index from a 10 x 6 shield. 
+// The by-500 subtracts off the y value of the shield leaving numbers from 0-60. When divided by 12, you get an index which correspons to a spot in the shield array.
+// The distance away from the edge is subtracted from the x value to leave values from 0,120. This is divided by 12 which corresponds to a spot in the shield array. With x and y, you get an index from a 10 x 6 shield.
           shield.setShield1((bx-200+10)/12,(by-500)/12);          // Takes the co ordinate and calculates the x and y indexes in the shield array using ranges and division. The shield at that index is set to false meaning that it will be destroyed
           shipBullet.reset();   // The bullet is reset if it destroys the shield
         }
@@ -184,7 +257,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-    
+
   public void enemyCheck(){                  // Checks if the shipBullet collides with an enemy
     int bx=shipBullet.getbx();               // Gets the x and y position of the shipBullet
     int by=shipBullet.getby();
@@ -216,7 +289,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-   
+
   public void enemyShoot(){
     int[][]enemies=enemy.getenemies();
     for(int x=0; x<11; x++){
@@ -235,7 +308,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public void enemyshieldEdit(){
     ArrayList<Integer>enemyPts=enemyBullet.getenemyPts();
     for(int i=0; i<enemyPts.size(); i+=2){
@@ -267,7 +340,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public void ufoCheck(){
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){
@@ -277,7 +350,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public void shipCheck(){
     ArrayList<Integer> enemyPts=enemyBullet.getenemyPts();
     if(enemyPts.size()>0){
@@ -294,7 +367,7 @@ class GamePanel extends JPanel implements KeyListener{
       }
     }
   }
-  
+
   public static int randint(int low, int high){
     return (int)(Math.random()*(high-low+1)+low);
   }
@@ -517,7 +590,7 @@ class Enemy{
     }
 
   }
-  
+
   public void move (){
     int edgePos=-1;
     if(left){
@@ -628,6 +701,7 @@ class Bullet{
   private int by=650;
   private ArrayList<Integer> enemyPts=new ArrayList<Integer>();
   private Image bulletPic;
+  private static boolean shipShootSound = false;
   private Image enemyBulletPic;
 
   public Bullet(){
@@ -651,6 +725,7 @@ class Bullet{
     if(by<650){
       by-=10;
       g.drawImage(bulletPic,bx,by,null);
+      shipShootSound = true;
     }
   }
   public void enemyBulletDraw(Graphics g){
@@ -687,6 +762,9 @@ class Bullet{
   }
   public void enemyBulletClear(){
     enemyPts.clear();
+  }
+  public static boolean getShipShootSound (){
+    return shipShootSound;
   }
 }
 
