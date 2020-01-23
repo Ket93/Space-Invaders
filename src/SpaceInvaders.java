@@ -11,7 +11,7 @@ import javax.sound.sampled.*;
 public class SpaceInvaders extends JFrame implements ActionListener, KeyListener {
   Timer myTimer;
   GamePanel game = new GamePanel();
-  public static Sequencer midiPlayer; // Midi music player 
+  public static Sequencer midiPlayer; // Midi music player
 
   public SpaceInvaders (){
     super ("Space Invaders");
@@ -25,24 +25,24 @@ public class SpaceInvaders extends JFrame implements ActionListener, KeyListener
     setFocusable(true);
     requestFocus();
     setVisible (true);
-    setResizable (true);
+    setResizable (false);
     addKeyListener(this);
     addMouseListener(game.getTitleScreen());
     addMouseMotionListener(game.getTitleScreen());
-    startMidi("SpaceInvadersSound/trippygaia1.mid"); // Midi sound file 
+    startMidi("SpaceInvadersSound/gameMusic.mid"); // Midi sound file
 
     add(game);
   }
 
-  public static void startMidi(String midFilename) { // Playing background music 
+  public static void startMidi(String midFilename) { // Playing background music
     try {
       File midiFile = new File(midFilename);
       Sequence song = MidiSystem.getSequence(midiFile);
       midiPlayer = MidiSystem.getSequencer();
-      midiPlayer.open(); // Opens file 
-      midiPlayer.setSequence(song); // Sets music in player 
+      midiPlayer.open(); // Opens file
+      midiPlayer.setSequence(song); // Sets music in player
       midiPlayer.setLoopCount(100); // Repeat 0 times (play once)
-      midiPlayer.start(); // Starts playing music 
+      midiPlayer.start(); // Starts playing music
     } catch (MidiUnavailableException e) {
       e.printStackTrace();
     } catch (InvalidMidiDataException e) {
@@ -96,7 +96,7 @@ class Sound{  // Class for sound effects
   public static void shipBulletplay(){   // Plays the shipBullet sound
     sound1.play();
   }
-  public static void enemyBulletplay(){  // Plays the enemyBullet sound    
+  public static void enemyBulletplay(){  // Plays the enemyBullet sound
     sound2.play();
   }
   public static void explosionplay(){   // Plays the explosion sound
@@ -104,37 +104,10 @@ class Sound{  // Class for sound effects
   }
 }
 
-class Audio{
-  static Clip clip;
-  javax.sound.sampled.AudioInputStream audioInputStream;
-  public Audio()
-          throws UnsupportedAudioFileException,
-          IOException, LineUnavailableException
-  {
-    // create AudioInputStream object
-    audioInputStream = AudioSystem.getAudioInputStream(new File("src/SpaceInvadersSound/bottle-open.wav").getAbsoluteFile());
-
-    // create clip reference
-    clip = AudioSystem.getClip();
-
-    // open audioInputStream to the clip
-    clip.open(audioInputStream);
-
-    clip.loop(Clip.LOOP_CONTINUOUSLY);
-  }
-  public static void main (String[]args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-    Audio audioPlayer = new Audio();
-    audioPlayer.play();
-  }
-  public void play(){
-    clip.start();
-  }
-}
-
 
 
 class GamePanel extends JPanel implements KeyListener{
-  // Making objects 
+  // Making objects
   private Ship ship=new Ship();
   private Bullet shipBullet=new Bullet();
   private Shield shield=new Shield();
@@ -167,7 +140,7 @@ class GamePanel extends JPanel implements KeyListener{
     if (onTitle){ // If the user is on the title screen
       onTitle = title.draw(g);
     }
-    else if (!onTitle){ // Once start game button is clicked draw the rest of the game 
+    else if (!onTitle){ // Once start game button is clicked draw the rest of the game
       g.setColor(new Color(0,0,0));
       g.fillRect(0,0,1000,850);
       ship.draw(g);
@@ -181,10 +154,10 @@ class GamePanel extends JPanel implements KeyListener{
       enemyBullet.enemyBulletDraw(g);
       stats.draw(g);
       shipBullet.shipBulletDraw(g);
-      if (shipHit) { // draw -1 when life lost 
+      if (shipHit) { // draw -1 when life lost
         stats.drawLives(g);
         shipCount +=1;
-        if (shipCount == 70) { // -1 stays for 70 frames 
+        if (shipCount == 70) { // -1 stays for 70 frames
           shipHit = false;
           shipCount = 0;
         }
@@ -208,10 +181,10 @@ class GamePanel extends JPanel implements KeyListener{
       if (keys[KeyEvent.VK_LEFT]) {
         ship.move(-3);
       }
-      if (keys[KeyEvent.VK_SPACE]) { // Shoot bullets if space pressed 
+      if (keys[KeyEvent.VK_SPACE]) { // Shoot bullets if space pressed
         shipBullet.shipBulletshoot(ship.position());
       }
-      enemy.move(); // Moving enemies 
+      enemy.move(); // Moving enemies
     }
   }
 
@@ -346,8 +319,8 @@ class GamePanel extends JPanel implements KeyListener{
     if(enemy.UFOx()<shipBullet.getbx() && shipBullet.getbx()<enemy.UFOx()+60){ // Checks to see if the bullet is within the ufo's x range
       if(enemy.UFOy()<shipBullet.getby() && shipBullet.getby()<enemy.UFOy()+32){ // Checks to see if the bullet is within the ufo's y range
         sound.explosionplay();   // Plays the explosion sound
-        enemy.ufoOffScreen();    // Stops drawing ufo if hit 
-        stats.scoreAdd(randint(1,3)*50); // Adding score if ufo is hit 
+        enemy.ufoOffScreen();    // Stops drawing ufo if hit
+        stats.scoreAdd(randint(1,3)*50); // Adding score if ufo is hit
         shipBullet.reset();      // Resets the ships bullet after it hits the ufo
       }
     }
@@ -374,7 +347,7 @@ class GamePanel extends JPanel implements KeyListener{
     return (int)(Math.random()*(high-low+1)+low);
   }
 
-  public TitleScreen getTitleScreen(){ // Returns title object 
+  public TitleScreen getTitleScreen(){ // Returns title object
     return title;
   }
 }
@@ -383,16 +356,16 @@ class GamePanel extends JPanel implements KeyListener{
 
 class TitleScreen implements MouseListener, MouseMotionListener{ // Class for the title screen
   private Image spacePic; // Background image
-  private Image enemyShip1; // Enemy ships 
+  private Image enemyShip1; // Enemy ships
   private Image enemyShip2;
   private Image enemyShip3;
-  private Image ufoPic; // Red ufo picture 
+  private Image ufoPic; // Red ufo picture
   private boolean mousePressed; // Checks if the mouse if pressed down
   private int mx; // Mouse x position
-  private int my; // Mouse y position 
+  private int my; // Mouse y position
 
   public TitleScreen(){
-    // Getting images 
+    // Getting images
     ufoPic = new ImageIcon("SpaceInvadersIMGS/Ufo.png").getImage();
     spacePic = new ImageIcon("SpaceInvadersIMGS/spaceBackground.png").getImage();
     enemyShip1 = new ImageIcon("SpaceInvadersIMGS/spaceEnemy2.png").getImage();
@@ -411,7 +384,7 @@ class TitleScreen implements MouseListener, MouseMotionListener{ // Class for th
     }
   }
 
-  public void mouseReleased (MouseEvent e){ // Checks if mouse is released 
+  public void mouseReleased (MouseEvent e){ // Checks if mouse is released
     if (e.getButton() == MouseEvent.BUTTON1){
       mousePressed = false;
     }
@@ -427,35 +400,39 @@ class TitleScreen implements MouseListener, MouseMotionListener{ // Class for th
 
   }
 
-  public boolean draw (Graphics g){ // Drawing the title screen 
-    g.drawImage(spacePic, 0, 0, null); // Drawing background 
+  public boolean draw (Graphics g){ // Drawing the title screen
+    g.drawImage(spacePic, 0, 0, null); // Drawing background
     Graphics2D g2d = (Graphics2D) g;
-    Font font = new Font("Consolas",Font.PLAIN,190); // Initializing fonts 
+    Font font = new Font("Consolas",Font.PLAIN,190); // Initializing fonts
     Font smallFont = new Font("Consolas",Font.PLAIN,90);
     Font superSmallFont = new Font ("Consolas",Font.PLAIN,50);
     Font verySmallFont = new Font ("Consolas",Font.PLAIN,30);
-    g2d.setFont(font); // Setting font 
-    g2d.setColor(Color.white); // Setting Colour 
-    g2d.drawString("SPACE",245,170); // Drawing text 
+    g2d.setFont(verySmallFont); // Setting font
+    g2d.setColor(Color.white); // Setting Colour
+    g2d.drawString("LEFT ARROW KEY - LEFT",120, 360);
+    g2d.drawString("RIGHT ARROW KEY - RIGHT",120, 440);
+    g2d.drawString("SPACE BAR  - SHOOT",120, 520);
+    g2d.setFont(font);
+    g2d.drawString("SPACE",245,170); // Drawing text
     g2d.setFont(smallFont);
     g2d.setColor(Color.green);
     g2d.drawString("INVADERS",315,260);
-    g.drawImage(enemyShip1, 395, 290, null); // Drawing first image 
+    g.drawImage(enemyShip1, 575, 310, null); // Drawing first image
     g2d.setColor(Color.white);
     g2d.setFont(verySmallFont);
-    g2d.drawString("= 10 PTS",470,320);
-    g.drawImage(enemyShip2, 395, 350, null);
-    g2d.drawString("= 20 PTS",470,380);
-    g.drawImage(enemyShip3, 395, 410, null);
-    g2d.drawString("= 40 PTS",470,440);
-    g.drawImage(ufoPic, 385, 483, null);
-    g2d.drawString("= ? PTS",470,505);
+    g2d.drawString("= 10 PTS",650,340); // Drawing points
+    g.drawImage(enemyShip2, 575, 370, null);
+    g2d.drawString("= 20 PTS",650,400);
+    g.drawImage(enemyShip3, 575, 430, null);
+    g2d.drawString("= 40 PTS",650,460);
+    g.drawImage(ufoPic, 565, 503, null);
+    g2d.drawString("= ? PTS",650,525);
     g2d.drawString("By: Kevin Cui and Adam Gaisinsky",235,720);
     g2d.setFont(superSmallFont);
     if ((365<=mx)&&(mx<=641)&&(my<=650)&&(615<=my)){ // Checking if the user is hovering over the "Start Game" button
       g2d.setColor(Color.green);
       g2d.drawString("Start Game",358,620);
-      if (mousePressed == true){ // If the user presses start game then draw the rest of the game 
+      if (mousePressed == true){ // If the user presses start game then draw the rest of the game
         return false;
       }
     }
@@ -692,18 +669,18 @@ class Enemy{                     // Class for the enemies
 
   public void gameOver(Graphics g){ // Once lives = 0 display a "Game Over" screen
     Graphics2D g2d = (Graphics2D) g;
-    Font winFont = new Font ("Consolas",Font.PLAIN,150); // Initializing fonts 
+    Font winFont = new Font ("Consolas",Font.PLAIN,150); // Initializing fonts
     Font scoreFont = new Font ("Consolas", Font.PLAIN, 60);
-    g2d.setFont(winFont); // Setting fonts 
+    g2d.setFont(winFont); // Setting fonts
 
     if (Stats.getLives() <= 0){
-      Stats.setGameOver(true); // Not letting score change anymore 
+      Stats.setGameOver(true); // Not letting score change anymore
       g.drawImage(spaceBackground, 0, 0, null);
       g2d.setColor(Color.green);
       g2d.drawString("GAME OVER!", 100, 340);
       g2d.setFont(scoreFont);
       g2d.setColor(Color.white);
-      g2d.drawString("SCORE: " + Stats.getScore(),320, 450); // Displaying the final score 
+      g2d.drawString("SCORE: " + Stats.getScore(),320, 450); // Displaying the final score
     }
   }
 }
@@ -858,47 +835,47 @@ class Shield{   // Class for the shields
 
 
 
-class Stats { // Class for the stats 
-  private static int score; // Total score accumulated 
-  private static int lives; // Number of lives remaining 
-  private static boolean gameOver; // If all lives have been lost 
-  private Image smallSpaceshipPic; // Picture used for lives 
+class Stats { // Class for the stats
+  private static int score; // Total score accumulated
+  private static int lives; // Number of lives remaining
+  private static boolean gameOver; // If all lives have been lost
+  private Image smallSpaceshipPic; // Picture used for lives
 
-  public Stats (){ // Constructor method 
+  public Stats (){ // Constructor method
     score = 0; // Starting score at 0
-    lives = 3; // Giving the user 3 lives 
-    gameOver = false; // Starting game over as false 
+    lives = 3; // Giving the user 3 lives
+    gameOver = false; // Starting game over as false
     smallSpaceshipPic=new ImageIcon("SpaceInvadersIMGS/spaceshipSmall.png").getImage(); // Loading spaceship image
   }
-  public void draw (Graphics g){ // Drawing the "Game Over" screen 
+  public void draw (Graphics g){ // Drawing the "Game Over" screen
     Graphics2D g2d = (Graphics2D) g;
     Font font = new Font("Consolas",Font.PLAIN,32); // Initializing font
-    g2d.setFont(font); // Setting font 
-    g2d.setColor(Color.white); // Setting colour 
-    g2d.drawString("SCORE:",100,50); 
+    g2d.setFont(font); // Setting font
+    g2d.setColor(Color.white); // Setting colour
+    g2d.drawString("SCORE:",100,50);
     g2d.setColor(Color.green);
-    g2d.drawString(Integer.toString(score),220,50); // Drawing the user's score 
+    g2d.drawString(Integer.toString(score),220,50); // Drawing the user's score
     g2d.setColor(Color.white);
-    g2d.drawString("LIVES", 600,50); 
+    g2d.drawString("LIVES", 600,50);
     for(int i=0; i<lives; i++){
-      g.drawImage(smallSpaceshipPic,730+(i*70),20,null); // Drawing a spaceship for each life that the user has remaining 
+      g.drawImage(smallSpaceshipPic,730+(i*70),20,null); // Drawing a spaceship for each life that the user has remaining
     }
   }
-  public void drawLives (Graphics g){ // Method for when the user loses a life 
+  public void drawLives (Graphics g){ // Method for when the user loses a life
     Graphics2D g2d = (Graphics2D) g;
     Font font = new Font("Consolas",Font.PLAIN,40);
     g2d.setFont(font);
     g2d.setColor(Color.red);
-    g2d.drawString("-1", Ship.position()+20 ,630); // Drawing a red -1 to indicate a life lost 
+    g2d.drawString("-1", Ship.position()+20 ,630); // Drawing a red -1 to indicate a life lost
 
   }
-  public void scoreAdd(int points){ // Adding to the user's score 
+  public void scoreAdd(int points){ // Adding to the user's score
     if (!gameOver) { // Only add to score if not on the "Game Over" screen
       score += points;
     }
   }
   public static int getScore(){return score;} // Returns the user's score
-  public static int getLives() {return lives;} // Returns how many lives the user has left 
+  public static int getLives() {return lives;} // Returns how many lives the user has left
   public static void setLives(){lives-=1;} // Subtracting a life when the user if hit by an enemy
-  public static void setGameOver(boolean setGameOver){gameOver = setGameOver;} // Setting gaameOver to true once all lives are lost 
+  public static void setGameOver(boolean setGameOver){gameOver = setGameOver;} // Setting gaameOver to true once all lives are lost
 }
